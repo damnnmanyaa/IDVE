@@ -49,17 +49,17 @@ export default function Upload() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="ui-page">
+      <div className="mx-auto max-w-6xl">
+        <h1 className="ui-page-title mb-6">Upload Documents</h1>
 
-      <h1 className="text-2xl font-semibold mb-6">Upload Documents</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8">
 
         {/* Drag & Drop */}
         <div
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
-          className="border-2 border-dashed border-blue-300 rounded-xl p-10 flex flex-col items-center justify-center text-center bg-white hover:bg-blue-50 transition"
+          className="ui-card flex min-h-72 flex-col items-center justify-center border-2 border-dashed border-blue-300 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50 sm:p-10"
         >
           <div className="text-blue-500 text-4xl mb-4">⬆️</div>
 
@@ -67,9 +67,9 @@ export default function Upload() {
             Drag and drop files to upload
           </p>
 
-          <p className="text-gray-400 my-2">or</p>
+          <p className="my-2 text-gray-600">or</p>
 
-          <label className="bg-blue-500 text-white px-5 py-2 rounded-lg cursor-pointer hover:opacity-90 transition">
+          <label className="ui-button-primary cursor-pointer">
             Browse
             <input
               type="file"
@@ -79,36 +79,36 @@ export default function Upload() {
             />
           </label>
 
-          <p className="text-sm text-gray-400 mt-3">
+          <p className="mt-3 text-sm text-gray-600">
             Supported files: JPG, PNG, PDF
           </p>
         </div>
 
         {/* File List */}
-        <div className="bg-white p-6 rounded-xl shadow-sm">
+        <div className="ui-card p-5 sm:p-6">
 
-          <h2 className="text-lg font-medium mb-4">
+          <h2 className="text-lg font-semibold tracking-tight text-gray-900 mb-4">
             Uploaded Files
           </h2>
 
           {files.length === 0 ? (
-            <p className="text-gray-400">No files uploaded yet.</p>
+            <p className="text-gray-600">No files uploaded yet.</p>
           ) : (
             <ul className="space-y-4">
               {files.map((f, index) => (
                 <li
                   key={index}
-                  className="border p-3 rounded-lg"
+                  className="rounded-lg border border-gray-200 p-3"
                 >
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="flex items-center gap-2">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
                       <span>{getFileIcon(f.file.name)}</span>
-                      <span className="text-sm">{f.file.name}</span>
+                      <span className="min-w-0 truncate text-sm text-gray-800" title={f.file.name}>{f.file.name}</span>
                     </div>
 
                     <button
                       onClick={() => handleDelete(index)}
-                      className="text-red-500 hover:text-red-700"
+                      className="ui-button-secondary ui-danger-muted h-10 w-10 shrink-0 p-0"
                     >
                       ✕
                     </button>
@@ -126,7 +126,7 @@ export default function Upload() {
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 h-2 rounded">
                     <div
-                      className="bg-blue-500 h-2 rounded transition-all"
+                      className="ui-progress h-2 rounded transition-all"
                       style={{ width: `${f.progress}%` }}
                     ></div>
                   </div>
@@ -136,7 +136,8 @@ export default function Upload() {
           )}
         </div>
 
-      </div>
-    </div>
+       </div>
+     </div>
+   </div>
   );
 }

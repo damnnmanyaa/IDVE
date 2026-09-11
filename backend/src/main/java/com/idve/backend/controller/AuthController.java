@@ -1,7 +1,9 @@
 package com.idve.backend.controller;
 
 import com.idve.backend.dto.AuthResponse;
+import com.idve.backend.dto.ForgotPasswordRequest;
 import com.idve.backend.dto.LoginRequest;
+import com.idve.backend.dto.ResetPasswordRequest;
 import com.idve.backend.dto.MessageResponse;
 import com.idve.backend.dto.RegisterRequest;
 import com.idve.backend.dto.SendOtpRequest;
@@ -46,6 +48,16 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authService.forgotPassword(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 
     @PostMapping("/send-otp")

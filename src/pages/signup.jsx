@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../services/api";
 
 const PENDING_SIGNUP_KEY = "pendingSignup";
 
@@ -12,7 +13,7 @@ export default function Signup() {
   const [role, setRole] = useState("USER");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [oauthReady, setOauthReady] = useState({ google: false, github: false });
-  const API_BASE = "http://localhost:8080";
+  const API_BASE = API_BASE_URL;
 
   useEffect(() => {
     const clearForm = () => {
@@ -124,28 +125,27 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-      
-      <div className="w-full max-w-md text-center">
+    <div className="ui-page ui-page-center">
+      <div className="ui-auth-card text-center">
         
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-5 h-5 bg-black rounded"></div>
+          <div className="ui-brand-mark h-5 w-5 rounded"></div>
           <h1 className="text-lg font-semibold">IDVE</h1>
         </div>
 
         {/* Heading */}
-        <h2 className="text-4xl font-bold mb-8">
+        <h2 className="ui-page-title mb-6">
           Sign up for an account
         </h2>
 
         {/* Social Buttons */}
-        <div className="flex gap-4 mb-6">
+        <div className="grid grid-cols-1 gap-3 mb-6 sm:grid-cols-2">
           
           <button
             onClick={() => handleOAuthLogin("github")}
             disabled={!oauthReady.github}
-            className="flex-1 border rounded-lg py-3 hover:bg-gray-100 transition"
+            className="ui-button-secondary w-full"
           >
             {oauthReady.github ? "Login with GitHub" : "GitHub not configured"}
           </button>
@@ -153,7 +153,7 @@ export default function Signup() {
           <button
             onClick={() => handleOAuthLogin("google")}
             disabled={!oauthReady.google}
-            className="flex-1 border rounded-lg py-3 hover:bg-gray-100 transition"
+            className="ui-button-secondary w-full"
           >
             {oauthReady.google ? "Login with Google" : "Google not configured"}
           </button>
@@ -163,12 +163,12 @@ export default function Signup() {
         {/* Divider */}
         <div className="flex items-center gap-2 mb-6">
           <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="text-gray-400 text-sm"></span>
+          <span className="text-gray-600 text-sm"></span>
           <div className="flex-1 h-px bg-gray-300"></div>
         </div>
 
         {/* Signup fields */}
-        <div className="space-y-3 mb-6 text-left">
+        <div className="mb-6 space-y-4 text-left">
           <input
             type="text"
             placeholder="Full name"
@@ -176,7 +176,7 @@ export default function Signup() {
             autoComplete="off"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-gray-300"
+            className="ui-input"
           />
           <input
             type="email"
@@ -185,7 +185,7 @@ export default function Signup() {
             autoComplete="off"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-gray-300"
+            className="ui-input"
           />
           <div className="relative">
             <input
@@ -195,12 +195,12 @@ export default function Signup() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 pr-14 border rounded-lg outline-none focus:ring-2 focus:ring-gray-300"
+              className="ui-input pr-16"
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-600 hover:text-gray-900"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -210,10 +210,10 @@ export default function Signup() {
               <button
                 type="button"
                 onClick={() => setRole("USER")}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`ui-button ${
                   role === "USER"
                     ? "bg-black text-white"
-                    : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
+                    : "border border-gray-300 bg-gray-100 text-gray-800 hover:bg-gray-200"
                 }`}
               >
                 as User
@@ -221,16 +221,16 @@ export default function Signup() {
               <button
                 type="button"
                 onClick={() => setRole("ADMIN")}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`ui-button ${
                   role === "ADMIN"
                     ? "bg-black text-white"
-                    : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
+                    : "border border-gray-300 bg-gray-100 text-gray-800 hover:bg-gray-200"
                 }`}
               >
                 as Admin
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="mt-2 text-xs text-gray-500">
               Selected: {role === "ADMIN" ? "Admin" : "User"}
             </p>
           </div>
@@ -240,7 +240,7 @@ export default function Signup() {
         <button
           onClick={handleSignup}
           disabled={isSendingOtp}
-          className="w-full bg-black text-white py-3 rounded-lg hover:opacity-90 transition duration-200 disabled:opacity-70"
+          className="ui-button-primary w-full"
         >
           {isSendingOtp ? "Sending OTP..." : "Continue with Email"}
         </button>
@@ -248,7 +248,7 @@ export default function Signup() {
           {/* login */}
         <p className="text-center text-sm text-gray-500 mt-6">
           Already have an account?{" "}
-          <Link to="/login" className="text-black font-medium cursor-pointer">
+          <Link to="/login" className="ui-link font-medium">
             Log in
           </Link>
         </p>

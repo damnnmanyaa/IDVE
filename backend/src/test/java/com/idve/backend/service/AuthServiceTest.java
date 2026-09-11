@@ -1,7 +1,9 @@
 package com.idve.backend.service;
 
 import com.idve.backend.dto.AuthResponse;
+import com.idve.backend.dto.ForgotPasswordRequest;
 import com.idve.backend.dto.LoginRequest;
+import com.idve.backend.dto.ResetPasswordRequest;
 import com.idve.backend.entity.User;
 import com.idve.backend.exception.UnauthorizedException;
 import com.idve.backend.repository.UserRepository;
@@ -42,6 +44,62 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         authService = new AuthService(userRepository, passwordEncoder, jwtUtil, otpService);
+    }
+
+    @Test
+    void forgotPassword_UnknownUser_ReturnsGenericMessageWithoutSendingOtp() {
+        when(userRepository.findByEmail("nobody@example.com")).thenReturn(Optional.empty());
+
+        ForgotPasswordRequest request = new ForgotPasswordRequest();
+        request.setEmail("nobody@example.com");
+
+        assertEquals(
+            "If an account exists, password reset instructions have been sent.",
+            authService.forgotPassword(request).getMessage()
+        );
+        verify(otpService, never()).sendPasswordResetOtp(anyString());
+    }
+
+    @Test
+    void resetPassword_ValidOtp_EncodesAndSavesNewPassword() {
+        User user = new User();
+        user.setEmail("test@example.com");
+        user.setPassword("old-password");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode("new-password")).thenReturn("encoded-new-password");
+
+        ResetPasswordRequest request = new ResetPasswordRequest();
+        request.setEmail("test@example.com");
+        request.setOtp("123456");
+        request.setNewPassword("new-password");
+
+        assertEquals(
+            "Password reset successfully. You can now log in.",
+            authService.resetPassword(request).getMessage()
+        );
+        assertEquals("encoded-new-password", user.getPassword());
+        verify(otpService).verifyPasswordResetOtp("test@example.com", "123456");
+        verify(passwordEncoder).encode("new-password");
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void resetPassword_UnknownUser_ThrowsGenericBadRequest() {
+        when(userRepository.findByEmail("nobody@example.com")).thenReturn(Optional.empty());
+
+        ResetPasswordRequest request = new ResetPasswordRequest();
+        request.setEmail("nobody@example.com");
+        request.setOtp("123456");
+        request.setNewPassword("new-password");
+
+        com.idve.backend.exception.BadRequestException ex = assertThrows(
+            com.idve.backend.exception.BadRequestException.class,
+            () -> authService.resetPassword(request)
+        );
+
+        assertEquals("Invalid or expired password reset code.", ex.getMessage());
+        verify(otpService, never()).verifyPasswordResetOtp(anyString(), anyString());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test

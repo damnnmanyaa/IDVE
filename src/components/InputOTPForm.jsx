@@ -1,6 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-export default function InputOTPForm({ email, onVerify, onResend, initialOtp = "", initialInfo = "" }) {
+export default function InputOTPForm({
+  email,
+  onVerify,
+  onResend,
+  initialOtp = "",
+  initialInfo = "",
+  onOtpChange,
+  title = "Verify your login",
+  description = "Enter the verification code we sent to your email address:",
+  verifyLabel = "Verify",
+  verifyDisabled = false,
+  verifyDisabledMessage = "",
+  supportText = "Having trouble signing in?",
+  extraContent = null,
+}) {
   const [otp, setOtp] = useState(initialOtp || "");
   const [error, setError] = useState("");
   const [info, setInfo] = useState(initialInfo || "");
@@ -25,13 +39,16 @@ export default function InputOTPForm({ email, onVerify, onResend, initialOtp = "
   const handleOtpChange = (value) => {
     const digits = value.replace(/\D/g, "").slice(0, 6);
     setOtp(digits);
+    onOtpChange?.(digits);
     setError("");
   };
 
   const setOtpCharAt = (index, char) => {
     const chars = otp.padEnd(6, " ").split("");
     chars[index] = char || " ";
-    setOtp(chars.join("").replace(/\s/g, ""));
+    const nextOtp = chars.join("").replace(/\s/g, "");
+    setOtp(nextOtp);
+    onOtpChange?.(nextOtp);
     setError("");
   };
 
@@ -119,41 +136,41 @@ export default function InputOTPForm({ email, onVerify, onResend, initialOtp = "
       onChange={(e) => handleBoxChange(index, e.target.value)}
       onKeyDown={(e) => handleBoxKeyDown(index, e)}
       onPaste={handleBoxPaste}
-      className="w-14 h-14 border border-gray-300 rounded-md text-center text-3xl bg-white outline-none focus:ring-2 focus:ring-gray-400"
+      className="h-12 w-10 rounded-lg border border-slate-400 bg-white text-center text-xl text-gray-900 outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-200 sm:h-14 sm:w-14 sm:text-2xl"
       aria-label={`OTP digit ${index + 1}`}
     />
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-[520px] bg-white border border-gray-200 rounded-3xl shadow-sm">
-        <div className="p-6">
-          <h2 className="text-4xl font-semibold mb-2">Verify your login</h2>
-          <p className="text-gray-600 text-2xl leading-relaxed mb-6">
-            Enter the verification code we sent to your
+    <div className="ui-page ui-page-center">
+      <div className="ui-card w-full max-w-[520px]">
+        <div className="p-6 sm:p-8">
+          <h2 className="ui-page-title mb-2">{title}</h2>
+          <p className="ui-body-copy mb-6">
+            {description}
             <br />
             email address: <span className="font-semibold">{maskedEmail}</span>.
           </p>
 
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-3xl font-semibold">Verification code</p>
+          <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="ui-section-label">Verification code</p>
             <button
               onClick={handleResend}
               disabled={isResending}
-              className="px-4 py-2 border border-gray-300 rounded-xl text-2xl font-semibold transition hover:bg-gray-100 disabled:opacity-60"
+              className="ui-button-secondary w-full sm:w-auto"
             >
               {isResending ? "Resending..." : "Resend Code"}
             </button>
           </div>
 
-          <div className="mt-3 mb-4">
-            <div className="flex items-center gap-4">
+          <div className="mt-4 mb-6">
+            <div className="flex items-center justify-center gap-2 sm:gap-4">
               <div className="flex gap-0.5">
                 {renderOtpInput(0)}
                 {renderOtpInput(1)}
                 {renderOtpInput(2)}
               </div>
-              <span className="text-4xl font-medium">-</span>
+              <span className="text-xl font-medium text-gray-500 sm:text-2xl">-</span>
               <div className="flex gap-0.5">
                 {renderOtpInput(3)}
                 {renderOtpInput(4)}
@@ -162,23 +179,30 @@ export default function InputOTPForm({ email, onVerify, onResend, initialOtp = "
             </div>
           </div>
 
+          {extraContent}
         </div>
 
-        <div className="border-t border-gray-200 p-6">
+        <div className="border-t border-gray-200 p-6 sm:p-8">
           <button
             onClick={handleVerify}
-            disabled={isVerifying}
-            className="w-full h-14 bg-black text-white text-3xl rounded-2xl font-semibold transition hover:opacity-90 disabled:opacity-60"
+            disabled={isVerifying || verifyDisabled}
+            className="ui-button-primary w-full"
           >
-            {isVerifying ? "Verifying..." : "Verify"}
+            {isVerifying ? "Verifying..." : verifyLabel}
           </button>
 
-          <p className="text-center text-gray-600 text-2xl mt-4">
-            Having trouble signing in? <span className="underline">Contact support</span>
-          </p>
+          {verifyDisabledMessage && (
+            <p className="mt-3 text-sm text-amber-800" role="status">
+              {verifyDisabledMessage}
+            </p>
+          )}
 
-          {error && <p className="text-red-600 text-xl mt-4">{error}</p>}
-          {info && <p className="text-green-600 text-xl mt-4">{info}</p>}
+<p className="mt-4 text-center text-sm leading-6 text-gray-600">
+             {supportText} <span className="ui-link">Contact support</span>
+           </p>
+
+           {error && <p className="mt-4 text-sm text-red-800" role="alert">{error}</p>}
+           {info && <p className="mt-4 text-sm text-emerald-800" role="status">{info}</p>}
         </div>
       </div>
     </div>

@@ -22,6 +22,9 @@ public class OtpVerification {
     @Column(nullable = false)
     private String otp;
 
+    @Column(nullable = false, length = 32, columnDefinition = "varchar(32) default 'REGISTRATION'")
+    private String purpose = "REGISTRATION";
+
     @Column(nullable = false)
     private Instant expiresAt;
 
@@ -50,6 +53,14 @@ public class OtpVerification {
 
     public void setOtp(String otp) {
         this.otp = otp;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
     }
 
     public Instant getExpiresAt() {

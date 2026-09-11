@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("USER");
   const [oauthReady, setOauthReady] = useState({ google: false, github: false });
-  const API_BASE = "http://localhost:8080";
+  const API_BASE = API_BASE_URL;
 
   const decodeRoleFromToken = (token) => {
     try {
@@ -150,41 +151,42 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      
-     <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg hover:scale-[1.02] transition duration-300">
+    <div className="ui-page ui-page-center">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg hover:scale-[1.02] transition duration-300">
         
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
+          <div className="ui-brand-mark h-4 w-4 rounded"></div>
           <h1 className="text-lg font-semibold">IDVE</h1>
         </div>
 
         {/* Heading */}
-        <h2 className="text-2xl font-semibold text-center mb-2">
+        <h2 className="ui-page-title text-center mb-2">
           Log in to your account
         </h2>
-        <p className="text-gray-500 text-center mb-6">
+        <p className="ui-body-copy text-center mb-6">
           Welcome back! Please enter your details.
         </p>
 
         {/* Email */}
         <div className="mb-4">
-          <label className="text-sm text-gray-700">Email</label>
+          <label className="ui-section-label">Email</label>
           <input
             type="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full mt-1 px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-gray-300"
+            className="ui-input mt-1"
           />
         </div>
 
         {/* Password */}
         <div className="mb-4">
-          <div className="flex justify-between text-sm text-gray-700">
-            <label>Password</label>
-            <span className="text-gray-500 cursor-pointer">Forgot?</span>
+<div className="flex items-center justify-between">
+             <label className="ui-section-label">Password</label>
+             <Link to="/forgot-password" className="ui-link text-xs">
+               Forgot?
+             </Link>
           </div>
           <div className="relative mt-1">
             <input
@@ -192,13 +194,13 @@ export default function Login() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 pr-14 border rounded-lg outline-none focus:ring-2 focus:ring-gray-300"
+              className="ui-input pr-16"
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-xs font-medium text-gray-700 bg-white/90 px-2 py-1 rounded-md hover:bg-gray-100"
+              className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -206,11 +208,11 @@ export default function Login() {
         </div>
 
         <div className="mb-4">
-          <label className="text-sm text-gray-700">Login as</label>
+          <label className="ui-section-label">Login as</label>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full mt-1 px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-gray-300 bg-white"
+            className="ui-input mt-1"
           >
             <option value="USER">User</option>
             <option value="ADMIN">Admin</option>
@@ -220,7 +222,7 @@ export default function Login() {
         {/* Sign in button */}
         <button
           onClick={handleLogin}
-          className="w-full bg-black text-white py-2 rounded-lg mb-6 hover:opacity-90 transition duration-200"
+          className="ui-button-primary mb-6 w-full"
         >
           Sign in
         </button>
@@ -228,7 +230,7 @@ export default function Login() {
         {/* Divider */}
         <div className="flex items-center gap-2 mb-6">
           <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="text-gray-400 text-sm">OR</span>
+          <span className="text-gray-600 text-sm">OR</span>
           <div className="flex-1 h-px bg-gray-300"></div>
         </div>
 
@@ -236,7 +238,7 @@ export default function Login() {
         <button
           onClick={() => handleOAuthLogin("google")}
           disabled={!oauthReady.google}
-          className="w-full border py-2 rounded-lg mb-3 hover:bg-gray-50 transition"
+          className="ui-button-secondary mb-3 w-full"
         >
           {oauthReady.google ? "Continue with Google" : "Google OAuth not configured"}
         </button>
@@ -245,7 +247,7 @@ export default function Login() {
         <button
           onClick={() => handleOAuthLogin("github")}
           disabled={!oauthReady.github}
-          className="w-full border py-2 rounded-lg hover:bg-gray-50 transition"
+          className="ui-button-secondary w-full"
         >
           {oauthReady.github ? "Continue with GitHub" : "GitHub OAuth not configured"}
         </button>
@@ -253,7 +255,7 @@ export default function Login() {
         {/* Signup */}
         <p className="text-center text-sm text-gray-500 mt-6">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-black font-medium cursor-pointer">
+          <Link to="/signup" className="ui-link font-medium">
             Sign up
           </Link>
         </p>

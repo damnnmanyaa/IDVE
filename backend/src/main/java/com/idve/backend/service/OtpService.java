@@ -37,10 +37,23 @@ public class OtpService {
         this.otpVerificationRepository = otpVerificationRepository;
     }
 
+    public static final String REGISTRATION_PURPOSE = "REGISTRATION";
+    public static final String PASSWORD_RESET_PURPOSE = "PASSWORD_RESET";
+
     @Transactional
     public String sendOtp(String email) {
+        return sendOtp(email, REGISTRATION_PURPOSE);
+    }
+
+    @Transactional
+    public String sendPasswordResetOtp(String email) {
+        return sendOtp(email, PASSWORD_RESET_PURPOSE);
+    }
+
+    @Transactional
+    public String sendOtp(String email, String purpose) {
         String otp = String.format("%06d", random.nextInt(1_000_000));
-        String normalizedEmail = email.toLowerCase();
+        String normalizedEmail = normalizeEmail(email);
         Instant expiresAt = Instant.now().plusSeconds(OTP_EXPIRY_SECONDS);
         boolean sent = false;
 
@@ -55,20 +68,22 @@ public class OtpService {
         }
 
         Instant now = Instant.now();
-        OtpVerification record = otpVerificationRepository.findByEmail(normalizedEmail)
-            .orElseGet(OtpVerification::new);
+        OtpVerification record = otpVerificationRepository.findByEmailAndPurpose(normalizedEmail, purpose)
+            .orElseGet(() -> otpVerificationRepository.findByEmail(normalizedEmail).orElseGet(OtpVerification::new));
 
         record.setEmail(normalizedEmail);
         record.setOtp(otp);
+        record.setPurpose(purpose);
         record.setExpiresAt(expiresAt);
         record.setCreatedAt(now);
 
         try {
             otpVerificationRepository.save(record);
         } catch (DataIntegrityViolationException ex) {
-            OtpVerification existing = otpVerificationRepository.findByEmail(normalizedEmail)
+            OtpVerification existing = otpVerificationRepository.findByEmailAndPurpose(normalizedEmail, purpose)
                 .orElseThrow(() -> ex);
             existing.setOtp(otp);
+            existing.setPurpose(purpose);
             existing.setExpiresAt(expiresAt);
             existing.setCreatedAt(now);
             otpVerificationRepository.save(existing);
@@ -79,16 +94,32 @@ public class OtpService {
 
     @Transactional
     public void verifyOtp(String email, String otp) {
-        String normalizedEmail = email.toLowerCase();
-        OtpVerification entry = otpVerificationRepository.findByEmail(normalizedEmail)
-            .orElse(null);
+        verifyOtp(email, otp, REGISTRATION_PURPOSE);
+    }
+
+    @Transactional
+    public void verifyPasswordResetOtp(String email, String otp) {
+        try {
+            verifyOtp(email, otp, PASSWORD_RESET_PURPOSE);
+        } catch (BadRequestException ex) {
+            throw new BadRequestException("Invalid or expired password reset code.");
+        }
+    }
+
+    @Transactional
+    public void verifyOtp(String email, String otp, String purpose) {
+        String normalizedEmail = normalizeEmail(email);
+        OtpVerification entry = otpVerificationRepository.findByEmailAndPurpose(normalizedEmail, purpose)
+            .orElseGet(() -> purpose.equals(REGISTRATION_PURPOSE)
+                ? otpVerificationRepository.findByEmail(normalizedEmail).orElse(null)
+                : null);
 
         if (entry == null) {
             throw new BadRequestException("OTP not found. Please request a new OTP.");
         }
 
         if (Instant.now().isAfter(entry.getExpiresAt())) {
-            otpVerificationRepository.deleteByEmail(normalizedEmail);
+            deleteOtp(normalizedEmail, purpose);
             throw new BadRequestException("OTP expired. Please request a new OTP.");
         }
 
@@ -96,8 +127,20 @@ public class OtpService {
             throw new BadRequestException("OTP is incorrect.");
         }
 
-        // OTP can be used only once.
-        otpVerificationRepository.deleteByEmail(normalizedEmail);
+        deleteOtp(normalizedEmail, purpose);
+    }
+
+    private void deleteOtp(String email, String purpose) {
+        if (purpose.equals(REGISTRATION_PURPOSE)) {
+            otpVerificationRepository.deleteByEmail(email);
+            return;
+        }
+
+        otpVerificationRepository.deleteByEmailAndPurpose(email, purpose);
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase();
     }
 
     private void sendEmail(String email, String otp) {

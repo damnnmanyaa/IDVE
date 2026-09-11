@@ -65,21 +65,21 @@ export default function Dashboard() {
   const statusMeta = useMemo(
     () => ({
       PENDING: {
-        cardClass: "bg-yellow-50 border-yellow-200",
-        iconClass: "bg-yellow-100 text-yellow-700",
-        statusTextClass: "text-yellow-800",
+        cardClass: "ui-status-panel-pending",
+        iconClass: "ui-status-icon-pending",
+        statusTextClass: "text-amber-900",
         message: "Your document is under review",
       },
       VERIFIED: {
-        cardClass: "bg-green-50 border-green-200",
-        iconClass: "bg-green-100 text-green-700",
-        statusTextClass: "text-green-800",
+        cardClass: "ui-status-panel-verified",
+        iconClass: "ui-status-icon-verified",
+        statusTextClass: "text-emerald-900",
         message: "Your identity is verified",
       },
       REJECTED: {
-        cardClass: "bg-red-50 border-red-200",
-        iconClass: "bg-red-100 text-red-700",
-        statusTextClass: "text-red-800",
+        cardClass: "ui-status-panel-rejected",
+        iconClass: "ui-status-icon-rejected",
+        statusTextClass: "text-rose-900",
         message: "Please re-upload your document",
       },
     }),
@@ -219,14 +219,14 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="ui-app-shell min-h-screen">
 
       {/* Navbar */}
-      <div className="flex justify-between items-center px-8 py-4 bg-white border-b">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b bg-white px-4 py-4 sm:px-6 lg:px-8">
         
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-blue-500 rounded-md"></div>
+          <div className="ui-brand-mark h-5 w-5 rounded-md"></div>
           <h1 className="text-lg font-semibold">IDVE</h1>
         </div>
 
@@ -239,10 +239,10 @@ export default function Dashboard() {
             </div>
           )}
 
-          <button
-            disabled={isBusy}
-            className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed transition"
-          >
+<button
+             disabled={isBusy}
+             className="ui-button-secondary"
+           >
             Dashboard
           </button>
 
@@ -254,7 +254,7 @@ export default function Dashboard() {
                 event.preventDefault();
               }
             }}
-            className={`px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:opacity-90 transition ${
+            className={`ui-button-primary ${
               isBusy ? "pointer-events-none opacity-60" : ""
             }`}
           >
@@ -264,24 +264,24 @@ export default function Dashboard() {
           <button
             onClick={handleLogout}
             disabled={isBusy}
-            className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed transition"
+            className="ui-button-primary"
           >
             Logout
           </button>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white border rounded-xl shadow-sm p-6">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-3 lg:px-8 lg:py-10">
+        <div className="ui-card lg:col-span-2 p-5 sm:p-6">
           <div className="mb-8">
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-gray-900 mb-2">
+            <h2 className="ui-page-title mb-2 md:text-4xl">
               Welcome back, {currentUser?.name || "User"}
             </h2>
-            <p className="text-sm md:text-base text-gray-500">Manage your acount</p>
+            <p className="ui-body-copy">Manage your acount</p>
           </div>
 
           {isFetchingUser && (
-            <div className="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
+            <div className="ui-card mb-6 p-5 md:p-6">
               <div className="flex items-center gap-3 text-gray-600">
                 <span className="inline-block h-4 w-4 rounded-full border-2 border-gray-300 border-t-gray-700 animate-spin" />
                 <span className="text-sm">Loading your dashboard...</span>
@@ -290,7 +290,7 @@ export default function Dashboard() {
           )}
 
           {!isFetchingUser && !currentUser && (
-            <div className="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
+            <div className="ui-card mb-6 p-5 md:p-6">
               <p className="text-sm font-medium text-gray-800">No profile data available.</p>
               <p className="text-xs text-gray-500 mt-1">
                 We could not load your dashboard details. Please try refreshing.
@@ -298,26 +298,26 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div className="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
+          <div className="ui-card mb-6 p-5 md:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 md:gap-5">
-              <div className="h-14 w-14 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-lg font-semibold shrink-0">
+              <div className="h-14 w-14 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-lg font-semibold shrink-0">
                 {userInitials}
               </div>
 
               <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Name</p>
+                  <p className="ui-section-label mb-1">Name</p>
                   <p className="text-gray-900 font-medium">{currentUser?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Email</p>
+                  <p className="ui-section-label mb-1">Email</p>
                   <p className="text-gray-900 font-medium break-all">{currentUser?.email || "-"}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className={`mb-6 rounded-2xl border p-5 md:p-6 ${activeStatus.cardClass}`}>
+          <div className={`ui-card mb-6 p-5 md:p-6 ${activeStatus.cardClass}`}>
             <div className="flex items-start gap-4">
               <div
                 className={`h-11 w-11 rounded-full flex items-center justify-center shrink-0 ${activeStatus.iconClass}`}
@@ -326,16 +326,18 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <p className="text-xs uppercase tracking-wide text-gray-600 mb-1">
-                  Identity verification status
-                </p>
-                <p className={`text-xl font-semibold ${activeStatus.statusTextClass}`}>{status}</p>
+<p className="ui-section-label mb-1">
+                   Identity verification status
+                 </p>
+                 <span className={`ui-badge ${status === "VERIFIED" ? "ui-status-verified" : status === "REJECTED" ? "ui-status-rejected" : "ui-status-pending"}`}>
+                   {status}
+                 </span>
                 <p className="text-sm text-gray-700 mt-1">{activeStatus.message}</p>
               </div>
             </div>
           </div>
 
-          <div className="border rounded-xl p-5 md:p-6">
+          <div className="ui-card p-5 md:p-6">
             <p className="text-sm font-medium text-gray-800 mb-3">Upload identity document</p>
 
             <label
@@ -351,7 +353,7 @@ export default function Dashboard() {
               />
 
               <div className="flex flex-col items-center text-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center">
                   <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
                     <path d="M10 13V5m0 0L7.5 7.5M10 5l2.5 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M4.5 13.5v.75A1.75 1.75 0 0 0 6.25 16h7.5a1.75 1.75 0 0 0 1.75-1.75v-.75" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -379,22 +381,22 @@ export default function Dashboard() {
             </div>
 
             <div className="mt-4">
-              <button
-                onClick={handleUpload}
-                disabled={isBusy}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium bg-black text-white rounded-lg hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed transition"
-              >
-                {isUploading && (
-                  <span className="inline-block h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                )}
+<button
+                 onClick={handleUpload}
+                 disabled={isBusy}
+                 className="ui-button-primary"
+               >
+                 {isUploading && (
+                   <span className="ui-spinner border-white/40 border-t-white" />
+                 )}
                 <span>{isUploading ? "Uploading..." : "Upload Document"}</span>
               </button>
             </div>
 
             {uploadMessage && (
-              <p className="text-green-600 text-sm mt-3">{uploadMessage}</p>
+              <p className="mt-3 text-sm text-emerald-800">{uploadMessage}</p>
             )}
-            {uploadError && <p className="text-red-600 text-sm mt-3">{uploadError}</p>}
+            {uploadError && <p className="mt-3 text-sm text-red-800">{uploadError}</p>}
           </div>
 
           <div className="mt-6 border rounded-xl p-5 md:p-6">
@@ -411,7 +413,7 @@ export default function Dashboard() {
                     <p className="text-sm font-medium text-gray-800">{item.type}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
                   </div>
-                  <p className="text-xs text-gray-400 whitespace-nowrap">
+                  <p className="whitespace-nowrap text-xs text-gray-600">
                     {formatActivityTimestamp(item.timestamp)}
                   </p>
                 </li>
@@ -421,8 +423,8 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-4 h-fit lg:sticky lg:top-24">
-          <div className={`rounded-2xl border shadow-sm p-5 md:p-6 ${activeStatus.cardClass}`}>
-            <p className="text-xs uppercase tracking-wide text-gray-600 mb-3">Quick Status</p>
+<div className={`ui-card p-5 md:p-6 ${activeStatus.cardClass}`}>
+             <p className="ui-section-label mb-3">Quick Status</p>
 
             <div className="flex items-start gap-3">
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${activeStatus.iconClass}`}>
@@ -430,39 +432,11 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <p className={`text-lg font-semibold ${activeStatus.statusTextClass}`}>{status}</p>
+                <span className={`ui-badge ${status === "VERIFIED" ? "ui-status-verified" : status === "REJECTED" ? "ui-status-rejected" : "ui-status-pending"}`}>
+                   {status}
+                 </span>
                 <p className="text-sm text-gray-700 mt-1">{activeStatus.message}</p>
               </div>
-            </div>
-          </div>
-
-          <div className="bg-white border rounded-2xl shadow-sm p-5 md:p-6">
-            <p className="text-xs uppercase tracking-wide text-gray-600 mb-3">Quick Actions</p>
-
-            <div className="space-y-2.5">
-              <Link
-                to="/upload"
-                aria-disabled={isBusy}
-                onClick={(event) => {
-                  if (isBusy) {
-                    event.preventDefault();
-                  }
-                }}
-                className={`inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium rounded-lg bg-black text-white hover:opacity-90 transition ${
-                  isBusy ? "pointer-events-none opacity-60" : ""
-                }`}
-              >
-                Upload Document
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                disabled={isBusy}
-                className="inline-flex items-center justify-center w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed transition"
-              >
-                Back to Top
-              </button>
             </div>
           </div>
         </div>

@@ -1,7 +1,10 @@
 package com.idve.backend.service;
 
 import com.idve.backend.dto.AuthResponse;
+import com.idve.backend.dto.ForgotPasswordRequest;
 import com.idve.backend.dto.LoginRequest;
+import com.idve.backend.dto.MessageResponse;
+import com.idve.backend.dto.ResetPasswordRequest;
 import com.idve.backend.dto.RegisterRequest;
 import com.idve.backend.dto.SendOtpRequest;
 import com.idve.backend.dto.UserResponse;
@@ -75,6 +78,23 @@ public class AuthService {
         return new UserResponse(saved.getId(), saved.getName(), saved.getEmail(), saved.getRole(), saved.getVerificationStatus());
     }
 
+    public MessageResponse forgotPassword(ForgotPasswordRequest request) {
+        String email = normalizeEmail(request.getEmail());
+        userRepository.findByEmail(email).ifPresent(user -> otpService.sendPasswordResetOtp(email));
+        return new MessageResponse("If an account exists, password reset instructions have been sent.");
+    }
+
+    public MessageResponse resetPassword(ResetPasswordRequest request) {
+        String email = normalizeEmail(request.getEmail());
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new BadRequestException("Invalid or expired password reset code."));
+
+        otpService.verifyPasswordResetOtp(email, request.getOtp());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        return new MessageResponse("Password reset successfully. You can now log in.");
+    }
+
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new UnauthorizedException("User not registered. Please sign up."));
@@ -112,6 +132,10 @@ public class AuthService {
         user.setRole("USER");
         user.setVerificationStatus("PENDING");
         return userRepository.save(user);
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase();
     }
 
     private String normalizeRole(String role) {

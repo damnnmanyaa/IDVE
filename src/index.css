@@ -2,6 +2,249 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	--color-brand: #2563eb;
+	--color-brand-hover: #1d4ed8;
+	--color-action: #000000;
+	--color-action-hover: #1f2937;
+	--color-success-bg: #d1fae5;
+	--color-success-text: #065f46;
+	--color-success-border: #059669;
+	--color-warning-bg: #fef3c7;
+	--color-warning-text: #92400e;
+	--color-warning-border: #d97706;
+	--color-danger-bg: #ffe4e6;
+	--color-danger-text: #9f1239;
+	--color-danger-border: #e11d48;
+	--color-error-bg: #fef2f2;
+	--color-error-text: #991b1b;
+	--color-error-border: #dc2626;
+	--color-page: #f8fafc;
+	--color-surface: #ffffff;
+	--color-border: #cbd5e1;
+	--color-border-strong: #64748b;
+	--color-heading: #111827;
+	--color-body: #374151;
+	--color-muted: #4b5563;
+	--color-subtle: #6b7280;
+	--color-sidebar: #0f172a;
+	--color-sidebar-active: #1e293b;
+	--color-sidebar-text: #e2e8f0;
+	--color-sidebar-muted: #cbd5e1;
+}
+
+@layer components {
+	.ui-page,
+	.ui-app-shell {
+		background-color: var(--color-page);
+	}
+
+	.ui-page {
+		@apply min-h-screen px-4 py-8 sm:px-6 lg:px-8;
+	}
+
+	.ui-page-center {
+		@apply flex items-center justify-center;
+	}
+
+	.ui-card {
+		background-color: var(--color-surface);
+		border-color: var(--color-border);
+		@apply rounded-2xl border shadow-sm;
+	}
+
+	.ui-auth-card {
+		@apply ui-card w-full max-w-md p-6 sm:p-8;
+	}
+
+	.ui-page-title {
+		color: var(--color-heading);
+		@apply text-2xl font-semibold tracking-tight sm:text-3xl;
+	}
+
+	.ui-section-label {
+		color: var(--color-muted);
+		@apply text-xs font-semibold uppercase tracking-[0.12em];
+	}
+
+	.ui-body-copy {
+		color: var(--color-body);
+		@apply text-sm leading-6;
+	}
+
+	.ui-input {
+		border-color: var(--color-border-strong);
+		color: var(--color-heading);
+		@apply w-full rounded-lg bg-white px-4 py-2.5 text-base outline-none transition placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-200 sm:text-sm;
+	}
+
+	.ui-button {
+		@apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2;
+		outline-color: var(--color-brand);
+	}
+
+	.ui-button-primary {
+		background-color: var(--color-action);
+		@apply ui-button text-white hover:bg-gray-800 active:bg-gray-900;
+	}
+
+	.ui-button-secondary {
+		border-color: var(--color-border-strong);
+		color: var(--color-body);
+		@apply ui-button bg-white hover:bg-gray-50 active:bg-gray-100;
+	}
+
+	.ui-button-danger {
+		background-color: #b91c1c;
+		@apply ui-button text-white hover:bg-red-800 active:bg-red-900;
+	}
+
+	.ui-button-success {
+		background-color: #15803d;
+		@apply ui-button text-white hover:bg-green-800 active:bg-green-900;
+	}
+
+	.ui-badge {
+		@apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide;
+	}
+
+	.ui-brand-mark {
+		background-color: var(--color-brand);
+	}
+
+	.ui-link {
+		color: #075985;
+		@apply underline-offset-2 transition hover:text-blue-900 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2;
+		outline-color: var(--color-brand);
+	}
+
+	.ui-status-pending {
+		background-color: var(--color-warning-bg);
+		border-color: var(--color-warning-border);
+		color: var(--color-warning-text);
+	}
+
+	.ui-status-verified {
+		background-color: var(--color-success-bg);
+		border-color: var(--color-success-border);
+		color: var(--color-success-text);
+	}
+
+	.ui-status-rejected {
+		background-color: var(--color-danger-bg);
+		border-color: var(--color-danger-border);
+		color: var(--color-danger-text);
+	}
+
+	.ui-status-panel-pending {
+		background-color: var(--color-warning-bg);
+		border-color: var(--color-warning-border);
+	}
+
+	.ui-status-panel-verified {
+		background-color: var(--color-success-bg);
+		border-color: var(--color-success-border);
+	}
+
+	.ui-status-panel-rejected {
+		background-color: var(--color-danger-bg);
+		border-color: var(--color-danger-border);
+	}
+
+	.ui-status-icon-pending {
+		background-color: #fde68a;
+		color: var(--color-warning-text);
+	}
+
+	.ui-status-icon-verified {
+		background-color: #a7f3d0;
+		color: var(--color-success-text);
+	}
+
+	.ui-status-icon-rejected {
+		background-color: #fecdd3;
+		color: var(--color-danger-text);
+	}
+
+	.ui-role-user {
+		background-color: #f1f5f9;
+		border-color: var(--color-border);
+		color: var(--color-body);
+	}
+
+	.ui-role-admin {
+		background-color: #dbeafe;
+		border-color: var(--color-brand);
+		color: #1e3a8a;
+	}
+
+	.ui-spinner {
+		border-color: var(--color-border);
+		border-top-color: var(--color-brand);
+		@apply inline-block h-4 w-4 animate-spin rounded-full border-2;
+	}
+
+	.ui-feedback {
+		@apply rounded-lg border px-4 py-3 text-sm;
+	}
+
+	.ui-feedback-success {
+		background-color: var(--color-success-bg);
+		border-color: var(--color-success-border);
+		color: var(--color-success-text);
+	}
+
+	.ui-feedback-error {
+		background-color: var(--color-error-bg);
+		border-color: var(--color-error-border);
+		color: var(--color-error-text);
+	}
+
+	.ui-sidebar {
+		background-color: var(--color-sidebar);
+		border-color: #1e293b;
+		color: var(--color-sidebar-text);
+	}
+
+	.ui-sidebar-active {
+		background-color: var(--color-brand);
+		color: #ffffff;
+	}
+
+	.ui-sidebar-item {
+		color: var(--color-sidebar-muted);
+		@apply transition hover:text-white;
+	}
+
+	.ui-sidebar-item:hover {
+		background-color: var(--color-sidebar-active);
+	}
+
+	.ui-sidebar-item:focus-visible {
+		outline: 2px solid var(--color-brand);
+		outline-offset: 2px;
+	}
+
+	.ui-brand-text {
+		color: var(--color-brand);
+	}
+
+	.ui-progress {
+		background-color: var(--color-brand);
+	}
+
+	.ui-danger-muted {
+		color: var(--color-danger-text);
+	}
+
+	.ui-danger-muted:hover {
+		background-color: var(--color-danger-bg);
+		border-color: var(--color-danger-border);
+		color: #881337;
+	}
+
+}
+
 @layer base {
 	button {
 		transition: transform 140ms ease, box-shadow 180ms ease, filter 180ms ease;
@@ -23,7 +266,7 @@
 	}
 
 	button:focus-visible {
-		outline: 2px solid #94a3b8;
+		outline: 2px solid var(--color-brand);
 		outline-offset: 2px;
 	}
 }

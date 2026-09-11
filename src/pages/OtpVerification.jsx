@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import InputOTPForm from "../components/InputOTPForm";
 import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { API_BASE_URL } from "../services/api";
 
 const PENDING_SIGNUP_KEY = "pendingSignup";
 
@@ -10,7 +11,7 @@ export default function OtpVerification() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const API_BASE = "http://localhost:8080";
+  const API_BASE = API_BASE_URL;
 
   const getSignupData = () => {
     if (location.state?.name && location.state?.email && location.state?.password) {

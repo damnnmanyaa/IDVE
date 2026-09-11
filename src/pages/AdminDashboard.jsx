@@ -4,9 +4,14 @@ import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 
 const STATUS_STYLES = {
-  VERIFIED: "bg-emerald-100 text-emerald-700 border-emerald-300",
-  PENDING: "bg-amber-100 text-amber-700 border-amber-300",
-  REJECTED: "bg-rose-100 text-rose-700 border-rose-300",
+  VERIFIED: "ui-status-verified",
+  PENDING: "ui-status-pending",
+  REJECTED: "ui-status-rejected",
+};
+
+const ROLE_STYLES = {
+  USER: "ui-role-user",
+  ADMIN: "ui-role-admin",
 };
 
 const StatusIcon = ({ status }) => {
@@ -81,14 +86,14 @@ const formatTimestamp = (value) => {
 
 const getAuditActionStyle = (action) => {
   if (action === "LOGIN") {
-    return "bg-sky-100 text-sky-700 border-sky-200";
+    return "border-blue-200 bg-blue-100 text-blue-800";
   }
 
   if (action === "OTP") {
-    return "bg-violet-100 text-violet-700 border-violet-200";
+    return "border-indigo-200 bg-indigo-100 text-indigo-800";
   }
 
-  return "bg-gray-100 text-gray-700 border-gray-300";
+  return "border-gray-400 bg-gray-100 text-gray-800";
 };
 
 export default function AdminDashboard() {
@@ -328,25 +333,25 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-slate-100 border-r border-slate-800 p-6">
+    <div className="ui-app-shell min-h-screen">
+      <aside className="ui-sidebar fixed left-0 top-0 hidden h-screen w-64 border-r p-6 lg:block">
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-3.5 h-3.5 rounded bg-cyan-400" />
+          <div className="ui-brand-mark h-3.5 w-3.5 rounded" />
           <p className="text-xl font-semibold tracking-wide">IDVE</p>
         </div>
 
         <nav className="space-y-2">
-          <button className="w-full text-left px-3 py-2 rounded-lg bg-slate-800 text-white">Dashboard</button>
-          <button className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white">Users</button>
-          <button className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white">Audit Logs</button>
-          <button className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white">Settings</button>
+          <button className="ui-sidebar-active w-full rounded-lg px-3 py-2 text-left">Dashboard</button>
+          <button className="ui-sidebar-item w-full rounded-lg px-3 py-2 text-left">Users</button>
+          <button className="ui-sidebar-item w-full rounded-lg px-3 py-2 text-left">Audit Logs</button>
+          <button className="ui-sidebar-item w-full rounded-lg px-3 py-2 text-left">Settings</button>
         </nav>
       </aside>
 
-      <div className="ml-64 min-h-screen">
-        <header className="sticky top-0 z-20 bg-white border-b border-gray-200 px-6 md:px-8 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
+      <div className="min-h-screen lg:ml-64">
+        <header className="sticky top-0 z-20 border-b border-gray-200 bg-white px-4 py-4 sm:px-6 md:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h1 className="ui-page-title">Admin Dashboard</h1>
 
             <div className="flex items-center gap-4">
               <div className="text-right leading-tight">
@@ -355,7 +360,7 @@ export default function AdminDashboard() {
               </div>
               <button
                 onClick={logout}
-                className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:opacity-90 transition"
+                className="ui-button-primary"
               >
                 Logout
               </button>
@@ -363,19 +368,19 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        <main className="p-6 md:p-8">
+        <main className="p-4 sm:p-6 md:p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="bg-white border rounded-2xl shadow-sm p-5 md:p-6 mb-5">
+            <div className="ui-card mb-6 p-5 md:p-6">
               <p className="text-sm text-gray-500">Manage users and verification decisions.</p>
             </div>
 
             {error && (
-              <div className="mb-4 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-sm">
+              <div className="ui-feedback ui-feedback-error mb-4">
                 {error}
               </div>
             )}
 
-            <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
+            <div className="ui-card overflow-hidden">
               <div className="px-4 md:px-5 py-4 border-b border-gray-200 bg-white">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div className="w-full md:max-w-sm">
@@ -384,7 +389,7 @@ export default function AdminDashboard() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search by name or email"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition"
+                      className="ui-input px-3 py-2 text-sm"
                     />
                   </div>
 
@@ -392,7 +397,7 @@ export default function AdminDashboard() {
                     <select
                       value={roleFilter}
                       onChange={(e) => setRoleFilter(e.target.value)}
-                      className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition"
+                      className="ui-input rounded-lg px-3 py-2 text-sm"
                     >
                       <option value="ALL">All Roles</option>
                       <option value="USER">USER</option>
@@ -402,7 +407,7 @@ export default function AdminDashboard() {
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition"
+                      className="ui-input rounded-lg px-3 py-2 text-sm"
                     >
                       <option value="ALL">All Statuses</option>
                       <option value="PENDING">PENDING</option>
@@ -415,14 +420,14 @@ export default function AdminDashboard() {
 
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
-                  <thead className="bg-gray-100 text-gray-700">
+                  <thead className="bg-gray-50 text-gray-700">
                     <tr>
-                      <th className="text-left px-4 py-3 font-semibold">Name</th>
-                      <th className="text-left px-4 py-3 font-semibold">Email</th>
-                      <th className="text-left px-4 py-3 font-semibold">Role</th>
-                      <th className="text-left px-4 py-3 font-semibold">Document</th>
-                      <th className="text-left px-4 py-3 font-semibold">Status</th>
-                      <th className="text-left px-4 py-3 font-semibold">Actions</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Name</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Email</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Role</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Document</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Status</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -430,7 +435,7 @@ export default function AdminDashboard() {
                       <tr>
                         <td className="px-4 py-6 text-gray-500" colSpan={6}>
                           <div className="flex items-center gap-3">
-                            <span className="inline-block h-4 w-4 rounded-full border-2 border-gray-300 border-t-gray-700 animate-spin" />
+                            <span className="ui-spinner" />
                             <span>Loading users...</span>
                           </div>
                         </td>
@@ -464,17 +469,21 @@ export default function AdminDashboard() {
                           <tr
                             key={user.id}
                             onClick={() => openUserDetails(user)}
-                            className="border-t cursor-pointer hover:bg-gray-50 transition-colors"
+                            className="cursor-pointer border-t border-gray-200 transition-colors hover:bg-slate-50"
                           >
                             <td className="px-4 py-3 text-gray-900 font-medium">{user.name}</td>
                             <td className="px-4 py-3 text-gray-700 break-all">{user.email}</td>
-                            <td className="px-4 py-3 text-gray-700">{normalizeRole(user.role)}</td>
-                            <td className="px-4 py-3 text-gray-700 max-w-[15rem] truncate" title={user.documentPath || "No document"}>
-                              {formatDocumentLabel(user.documentPath)}
+                            <td className="px-4 py-3 text-gray-700">
+                              <span className={`ui-badge ${ROLE_STYLES[normalizeRole(user.role)] || "ui-role-user"}`}>
+                                {normalizeRole(user.role)}
+                              </span>
+                            </td>
+                            <td className="max-w-[15rem] px-4 py-3 text-gray-700" title={user.documentPath || "No document"}>
+                              <span className="block min-w-0 truncate">{formatDocumentLabel(user.documentPath)}</span>
                             </td>
                             <td className="px-4 py-3">
                               <span
-                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold tracking-wide ${STATUS_STYLES[status]}`}
+                                className={`ui-badge ${STATUS_STYLES[status]}`} 
                               >
                                 <StatusIcon status={status} />
                                 {status}
@@ -489,7 +498,7 @@ export default function AdminDashboard() {
                                   }}
                                   disabled={isApproveDisabled}
                                   title={status === "VERIFIED" ? "Already approved" : "Approve user"}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-green-600 text-white hover:bg-green-700 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                  className="ui-button-success px-3 py-1.5 text-xs"
                                 >
                                   <span aria-hidden="true">✔</span>
                                   <span>Approve</span>
@@ -501,7 +510,7 @@ export default function AdminDashboard() {
                                   }}
                                   disabled={isRejectDisabled}
                                   title={status === "REJECTED" ? "Already rejected" : "Reject user"}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-red-600 text-white hover:bg-red-700 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                  className="ui-button-danger px-3 py-1.5 text-xs"
                                 >
                                   <span aria-hidden="true">✖</span>
                                   <span>Reject</span>
@@ -516,7 +525,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <section className="mt-6 bg-white border rounded-2xl shadow-sm p-5 md:p-6">
+            <section className="ui-card mt-6 p-5 md:p-6">
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div>
                   <h2 className="text-base md:text-lg font-semibold text-gray-900">Audit Logs</h2>
@@ -525,13 +534,13 @@ export default function AdminDashboard() {
                 <span className="text-xs font-medium text-gray-500">{auditLogs.length} events</span>
               </div>
 
-              <div className="max-h-72 overflow-y-auto rounded-xl border border-gray-200">
+              <div className="max-h-72 overflow-x-auto overflow-y-auto rounded-xl border border-gray-200">
                 <table className="min-w-full text-sm">
                   <thead className="sticky top-0 bg-gray-50 text-gray-700">
                     <tr>
-                      <th className="text-left px-4 py-3 font-semibold">Action</th>
-                      <th className="text-left px-4 py-3 font-semibold">User Email</th>
-                      <th className="text-left px-4 py-3 font-semibold">Timestamp</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Action</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">User Email</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Timestamp</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -539,7 +548,7 @@ export default function AdminDashboard() {
                       <tr>
                         <td colSpan={3} className="px-4 py-6 text-gray-500">
                           <div className="flex items-center gap-3">
-                            <span className="inline-block h-4 w-4 rounded-full border-2 border-gray-300 border-t-gray-700 animate-spin" />
+                            <span className="ui-spinner" />
                             <span>Loading audit logs...</span>
                           </div>
                         </td>
@@ -555,13 +564,11 @@ export default function AdminDashboard() {
                     )}
 
                     {!isAuditLoading && auditLogs.map((log) => (
-                      <tr key={log.id} className="border-t">
+                      <tr key={log.id} className="border-t border-gray-200 transition-colors hover:bg-slate-50">
                         <td className="px-4 py-3">
-                          <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${getAuditActionStyle(
-                              log.action
-                            )}`}
-                          >
+<span
+                             className={`ui-badge ${getAuditActionStyle(log.action)}`}
+                           >
                             {log.action}
                           </span>
                         </td>
@@ -583,7 +590,7 @@ export default function AdminDashboard() {
           onClick={closeUserDetails}
         >
           <div
-            className="w-full max-w-lg rounded-2xl bg-white border border-gray-200 shadow-2xl p-6 md:p-7"
+            className="ui-card max-h-[90vh] w-full max-w-lg overflow-y-auto p-6 shadow-2xl md:p-7"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4 mb-5">
@@ -602,27 +609,27 @@ export default function AdminDashboard() {
 
             <div className="space-y-4">
               <div>
-                <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Name</p>
+                <p className="ui-section-label mb-1">Name</p>
                 <p className="text-sm font-medium text-gray-900">{selectedUser.name || "-"}</p>
               </div>
 
               <div>
-                <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Email</p>
+                <p className="ui-section-label mb-1">Email</p>
                 <p className="text-sm font-medium text-gray-900 break-all">{selectedUser.email || "-"}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Role</p>
-                  <p className="text-sm font-medium text-gray-900">{normalizeRole(selectedUser.role)}</p>
+                  <p className="ui-section-label mb-1">Role</p>
+                  <span className={`ui-badge ${ROLE_STYLES[normalizeRole(selectedUser.role)] || "ui-role-user"}`}>
+                    {normalizeRole(selectedUser.role)}
+                  </span>
                 </div>
 
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Status</p>
+                  <p className="ui-section-label mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold tracking-wide ${
-                      STATUS_STYLES[normalizeStatus(selectedUser.verificationStatus)]
-                    }`}
+                    className={`ui-badge ${STATUS_STYLES[normalizeStatus(selectedUser.verificationStatus)]}`}
                   >
                     <StatusIcon status={normalizeStatus(selectedUser.verificationStatus)} />
                     {normalizeStatus(selectedUser.verificationStatus)}
@@ -641,7 +648,7 @@ export default function AdminDashboard() {
                       href={selectedUserDocument}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm font-medium text-cyan-700 hover:text-cyan-800 underline underline-offset-2"
+                      className="ui-link text-sm font-medium"
                     >
                       View uploaded document
                     </a>
