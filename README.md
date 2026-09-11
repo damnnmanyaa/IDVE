@@ -1,6 +1,6 @@
 # 🔐 Identity Verification & Access Management System (IDVE)
 
-Hey! This is my minor project where I tried to build a system that actually *controls who gets access* and *verifies if users are genuine* — not just a basic login/signup app.
+Hey! This is my minor project where I tried to build a system that actually *controls who gets access* and *verifies if users are genuine*  not just a basic login/signup app.
 
 ---
 
