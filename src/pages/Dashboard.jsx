@@ -2,31 +2,27 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
-
-const StatusStateIcon = ({ status }) => {
-  if (status === "VERIFIED") {
-    return (
-      <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
-        <path d="M5 10.5l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-
-  if (status === "REJECTED") {
-    return (
-      <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
-        <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
-      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="2" />
-      <path d="M10 6v4l2.5 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-};
+import {
+  Shield,
+  ShieldCheck,
+  User,
+  FileText,
+  Upload,
+  CheckCircle2,
+  Clock3,
+  XCircle,
+  Settings,
+  LogOut,
+  Activity,
+  FileCheck,
+  AlertCircle,
+  LayoutDashboard,
+  FileSpreadsheet,
+  Lock,
+  ChevronRight,
+  Menu,
+  X
+} from "lucide-react";
 
 const formatActivityTimestamp = (value) => {
   const date = new Date(value);
@@ -49,6 +45,7 @@ export default function Dashboard() {
   const [uploadError, setUploadError] = useState("");
   const [recentActivities, setRecentActivities] = useState([]);
   const [toasts, setToasts] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const userInitials = useMemo(() => {
     const name = String(currentUser?.name || "").trim();
@@ -61,33 +58,6 @@ export default function Dashboard() {
     const second = parts.length > 1 ? parts[1]?.[0] || "" : "";
     return `${first}${second}`.toUpperCase() || "U";
   }, [currentUser?.name]);
-
-  const statusMeta = useMemo(
-    () => ({
-      PENDING: {
-        cardClass: "ui-status-panel-pending",
-        iconClass: "ui-status-icon-pending",
-        statusTextClass: "text-amber-900",
-        message: "Your document is under review",
-      },
-      VERIFIED: {
-        cardClass: "ui-status-panel-verified",
-        iconClass: "ui-status-icon-verified",
-        statusTextClass: "text-emerald-900",
-        message: "Your identity is verified",
-      },
-      REJECTED: {
-        cardClass: "ui-status-panel-rejected",
-        iconClass: "ui-status-icon-rejected",
-        statusTextClass: "text-rose-900",
-        message: "Please re-upload your document",
-      },
-    }),
-    []
-  );
-
-  const activeStatus = statusMeta[status] || statusMeta.PENDING;
-  const isBusy = isFetchingUser || isUploading;
 
   const normalizeStatus = (value) => {
     const next = String(value || "").toUpperCase();
@@ -218,248 +188,455 @@ export default function Dashboard() {
     }
   };
 
-  return (
-    <div className="ui-app-shell min-h-screen">
+  const isBusy = isFetchingUser || isUploading;
 
-      {/* Navbar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b bg-white px-4 py-4 sm:px-6 lg:px-8">
-        
-        {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="ui-brand-mark h-5 w-5 rounded-md"></div>
-          <h1 className="text-lg font-semibold">IDVE</h1>
+  const renderStatusBadge = (statusVal) => {
+    if (statusVal === "VERIFIED") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]"></span>
+          VERIFIED
+        </span>
+      );
+    }
+    if (statusVal === "REJECTED") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#EF4444]"></span>
+          REJECTED
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#F59E0B] animate-pulse"></span>
+        PENDING REVIEW
+      </span>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] flex">
+      
+      {/* Sidebar Desktop */}
+      <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 left-0 bg-[#111113] border-r border-[#27272A] z-30 justify-between p-5">
+        <div>
+          {/* Brand Header */}
+          <div className="flex items-center gap-3 mb-8 px-2">
+            <div className="h-8 w-8 rounded-lg bg-[#F4F4F5] text-[#09090B] flex items-center justify-center font-bold">
+              <Shield className="h-4 w-4 stroke-[2.5]" />
+            </div>
+            <span className="text-lg font-bold tracking-tight text-[#F4F4F5]">IDVE</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#18181B] text-[#A1A1AA] border border-[#27272A] font-mono">IAM</span>
+          </div>
+
+          {/* Navigation Menu */}
+          <nav className="space-y-1">
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#18181B] text-[#F4F4F5] font-medium text-sm border border-[#27272A] shadow-sm">
+              <LayoutDashboard className="h-4 w-4 text-[#F4F4F5]" />
+              <span>Overview</span>
+            </button>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+              <User className="h-4 w-4 text-[#71717A]" />
+              <span>Identity Profile</span>
+            </button>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+              <ShieldCheck className="h-4 w-4 text-[#71717A]" />
+              <span>Verification</span>
+            </button>
+            <Link to="/upload" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+              <FileSpreadsheet className="h-4 w-4 text-[#71717A]" />
+              <span>Documents Workspace</span>
+            </Link>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+              <Activity className="h-4 w-4 text-[#71717A]" />
+              <span>Audit History</span>
+            </button>
+          </nav>
         </div>
 
-        {/* Right side */}
-        <div className="flex items-center gap-4">
-          {currentUser && (
-            <div className="text-right leading-tight">
-              <p className="text-sm font-medium text-gray-800">{currentUser.name}</p>
-              <p className="text-xs text-gray-500">{currentUser.email}</p>
-            </div>
-          )}
-
-<button
-             disabled={isBusy}
-             className="ui-button-secondary"
-           >
-            Dashboard
+        {/* Sidebar Footer */}
+        <div className="pt-4 border-t border-[#27272A] space-y-1">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+            <Settings className="h-4 w-4 text-[#71717A]" />
+            <span>Settings</span>
           </button>
-
-          <Link
-            to="/upload"
-            aria-disabled={isBusy}
-            onClick={(event) => {
-              if (isBusy) {
-                event.preventDefault();
-              }
-            }}
-            className={`ui-button-primary ${
-              isBusy ? "pointer-events-none opacity-60" : ""
-            }`}
-          >
-            Upload
-          </Link>
-
           <button
             onClick={handleLogout}
             disabled={isBusy}
-            className="ui-button-primary"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition text-sm font-medium"
           >
-            Logout
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span>Sign Out</span>
           </button>
         </div>
-      </div>
+      </aside>
 
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-3 lg:px-8 lg:py-10">
-        <div className="ui-card lg:col-span-2 p-5 sm:p-6">
-          <div className="mb-8">
-            <h2 className="ui-page-title mb-2 md:text-4xl">
-              Welcome back, {currentUser?.name || "User"}
-            </h2>
-            <p className="ui-body-copy">Manage your acount</p>
+      {/* Main Content Shell */}
+      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
+        
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-20 bg-[#111113]/90 backdrop-blur border-b border-[#27272A] px-4 py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="lg:hidden p-1.5 rounded-lg border border-[#27272A] bg-[#18181B] text-[#A1A1AA] hover:text-[#F4F4F5]"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+            <h1 className="text-lg font-semibold text-[#F4F4F5] tracking-tight">Overview</h1>
           </div>
 
-          {isFetchingUser && (
-            <div className="ui-card mb-6 p-5 md:p-6">
-              <div className="flex items-center gap-3 text-gray-600">
-                <span className="inline-block h-4 w-4 rounded-full border-2 border-gray-300 border-t-gray-700 animate-spin" />
-                <span className="text-sm">Loading your dashboard...</span>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            {renderStatusBadge(status)}
 
-          {!isFetchingUser && !currentUser && (
-            <div className="ui-card mb-6 p-5 md:p-6">
-              <p className="text-sm font-medium text-gray-800">No profile data available.</p>
-              <p className="text-xs text-gray-500 mt-1">
-                We could not load your dashboard details. Please try refreshing.
-              </p>
-            </div>
-          )}
-
-          <div className="ui-card mb-6 p-5 md:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 md:gap-5">
-              <div className="h-14 w-14 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-lg font-semibold shrink-0">
+            <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-[#27272A]">
+              <div className="h-8 w-8 rounded-full bg-[#18181B] border border-[#27272A] flex items-center justify-center text-xs font-semibold text-[#F4F4F5]">
                 {userInitials}
               </div>
-
-              <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="ui-section-label mb-1">Name</p>
-                  <p className="text-gray-900 font-medium">{currentUser?.name || "-"}</p>
-                </div>
-                <div>
-                  <p className="ui-section-label mb-1">Email</p>
-                  <p className="text-gray-900 font-medium break-all">{currentUser?.email || "-"}</p>
-                </div>
+              <div className="text-left text-xs leading-tight">
+                <p className="font-medium text-[#F4F4F5]">{currentUser?.name || "User"}</p>
+                <p className="text-[#71717A] max-w-[140px] truncate">{currentUser?.email || "-"}</p>
               </div>
             </div>
-          </div>
 
-          <div className={`ui-card mb-6 p-5 md:p-6 ${activeStatus.cardClass}`}>
-            <div className="flex items-start gap-4">
-              <div
-                className={`h-11 w-11 rounded-full flex items-center justify-center shrink-0 ${activeStatus.iconClass}`}
-              >
-                <StatusStateIcon status={status} />
-              </div>
-
-              <div>
-<p className="ui-section-label mb-1">
-                   Identity verification status
-                 </p>
-                 <span className={`ui-badge ${status === "VERIFIED" ? "ui-status-verified" : status === "REJECTED" ? "ui-status-rejected" : "ui-status-pending"}`}>
-                   {status}
-                 </span>
-                <p className="text-sm text-gray-700 mt-1">{activeStatus.message}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="ui-card p-5 md:p-6">
-            <p className="text-sm font-medium text-gray-800 mb-3">Upload identity document</p>
-
-            <label
-              htmlFor="identity-document-upload"
-              className="group block rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-blue-300 transition p-6 cursor-pointer"
+            <button
+              onClick={handleLogout}
+              disabled={isBusy}
+              className="p-2 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-[#F4F4F5] border border-[#27272A] transition"
+              title="Logout"
             >
-              <input
-                id="identity-document-upload"
-                type="file"
-                onChange={handleFileChange}
-                disabled={isBusy}
-                className="sr-only"
-              />
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </header>
 
-              <div className="flex flex-col items-center text-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center">
-                  <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
-                    <path d="M10 13V5m0 0L7.5 7.5M10 5l2.5 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M4.5 13.5v.75A1.75 1.75 0 0 0 6.25 16h7.5a1.75 1.75 0 0 0 1.75-1.75v-.75" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <p className="text-sm font-medium text-gray-700">
-                  Click to browse or drag and drop
-                </p>
-                <p className="text-xs text-gray-500">PDF, JPG, PNG (max 10MB)</p>
-              </div>
-            </label>
-
-            <div className="mt-3 min-h-[1.5rem]">
-              {selectedFile ? (
-                <div className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-800">
-                  <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
-                    <path d="M6.5 4.5h4.75L14.5 7.75V15a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M11 4.5V8h3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="font-medium break-all">{selectedFile.name}</span>
-                </div>
-              ) : (
-                <p className="text-xs text-gray-500">No file selected</p>
-              )}
+        {/* Mobile Sidebar Dropdown */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-[#111113] border-b border-[#27272A] p-4 space-y-2">
+            <div className="flex items-center gap-3 p-2 rounded-lg bg-[#18181B] text-[#F4F4F5] text-sm font-medium">
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Overview</span>
             </div>
+            <Link to="/upload" className="flex items-center gap-3 p-2 rounded-lg text-[#A1A1AA] text-sm font-medium">
+              <FileSpreadsheet className="h-4 w-4" />
+              <span>Documents Workspace</span>
+            </Link>
+            <button onClick={handleLogout} className="flex items-center gap-3 p-2 rounded-lg text-rose-400 text-sm font-medium w-full text-left">
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        )}
 
-            <div className="mt-4">
-<button
-                 onClick={handleUpload}
-                 disabled={isBusy}
-                 className="ui-button-primary"
-               >
-                 {isUploading && (
-                   <span className="ui-spinner border-white/40 border-t-white" />
-                 )}
-                <span>{isUploading ? "Uploading..." : "Upload Document"}</span>
-              </button>
-            </div>
-
-            {uploadMessage && (
-              <p className="mt-3 text-sm text-emerald-800">{uploadMessage}</p>
-            )}
-            {uploadError && <p className="mt-3 text-sm text-red-800">{uploadError}</p>}
+        {/* Main Workspace Body */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+          
+          {/* Welcome Banner */}
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F4F4F5]">
+              Welcome back, {currentUser?.name || "User"}
+            </h2>
+            <p className="text-sm text-[#A1A1AA] mt-1">
+              Manage your identity, verification status and account security.
+            </p>
           </div>
 
-          <div className="mt-6 border rounded-xl p-5 md:p-6">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">Recent Activity</h3>
+          {/* Loading Indicator */}
+          {isFetchingUser && (
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] flex items-center gap-3 text-sm text-[#A1A1AA]">
+              <span className="inline-block h-4 w-4 rounded-full border-2 border-[#27272A] border-t-[#F4F4F5] animate-spin" />
+              <span>Fetching identity record...</span>
+            </div>
+          )}
 
-            <ul className="divide-y divide-gray-200">
-              {recentActivities.length === 0 && (
-                <li className="py-3 text-xs text-gray-500">No recent activity yet.</li>
-              )}
+          {/* Metric Summary Cards Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            {/* Metric 1: Verification Status */}
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+                <span>Identity Status</span>
+                <ShieldCheck className="h-4 w-4 text-[#A1A1AA]" />
+              </div>
+              <div className="pt-1">
+                {renderStatusBadge(status)}
+              </div>
+              <p className="text-xs text-[#71717A]">
+                {status === "VERIFIED" ? "Official verification granted" : status === "REJECTED" ? "Verification rejected by admin" : "Under review by admin"}
+              </p>
+            </div>
 
-              {recentActivities.map((item) => (
-                <li key={item.id} className="py-3 flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-800">{item.type}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+            {/* Metric 2: Document */}
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+                <span>Document State</span>
+                <FileText className="h-4 w-4 text-[#A1A1AA]" />
+              </div>
+              <p className="text-sm font-semibold text-[#F4F4F5] truncate">
+                {selectedFile ? selectedFile.name : "Document Submitted"}
+              </p>
+              <p className="text-xs text-[#71717A]">PDF / Image format</p>
+            </div>
+
+            {/* Metric 3: Account Email */}
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+                <span>Account Identity</span>
+                <User className="h-4 w-4 text-[#A1A1AA]" />
+              </div>
+              <p className="text-sm font-semibold text-[#F4F4F5] truncate">
+                {currentUser?.email || "-"}
+              </p>
+              <p className="text-xs text-[#71717A]">Primary email address</p>
+            </div>
+
+            {/* Metric 4: Access Level */}
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+                <span>Access Level</span>
+                <Lock className="h-4 w-4 text-[#A1A1AA]" />
+              </div>
+              <div className="pt-1">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#18181B] text-xs font-semibold text-[#F4F4F5] border border-[#27272A]">
+                  USER ROLE
+                </span>
+              </div>
+              <p className="text-xs text-[#71717A]">Standard privileges</p>
+            </div>
+
+          </div>
+
+          {/* Grid Layout: Main & Side Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Main Center Column (lg:col-span-2) */}
+            <div className="lg:col-span-2 space-y-6">
+              
+              {/* Identity Verification Timeline */}
+              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-5">
+                <div>
+                  <h3 className="text-base font-semibold text-[#F4F4F5]">Identity verification</h3>
+                  <p className="text-xs text-[#A1A1AA] mt-0.5">Track your verification milestone status.</p>
+                </div>
+
+                <div className="space-y-4 relative before:absolute before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#27272A]">
+                  
+                  {/* Step 1 */}
+                  <div className="flex items-start gap-3.5 relative z-10">
+                    <div className="h-7 w-7 rounded-full bg-emerald-950/60 border border-emerald-500/50 text-[#22C55E] flex items-center justify-center shrink-0 text-xs">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-[#F4F4F5]">Account Created</p>
+                      <p className="text-xs text-[#71717A]">Registered on IDVE platform</p>
+                    </div>
                   </div>
-                  <p className="whitespace-nowrap text-xs text-gray-600">
-                    {formatActivityTimestamp(item.timestamp)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
 
-        <div className="space-y-4 h-fit lg:sticky lg:top-24">
-<div className={`ui-card p-5 md:p-6 ${activeStatus.cardClass}`}>
-             <p className="ui-section-label mb-3">Quick Status</p>
+                  {/* Step 2 */}
+                  <div className="flex items-start gap-3.5 relative z-10">
+                    <div className="h-7 w-7 rounded-full bg-emerald-950/60 border border-emerald-500/50 text-[#22C55E] flex items-center justify-center shrink-0 text-xs">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-[#F4F4F5]">Email / OTP Verified</p>
+                      <p className="text-xs text-[#71717A]">Two-factor verification completed</p>
+                    </div>
+                  </div>
 
-            <div className="flex items-start gap-3">
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${activeStatus.iconClass}`}>
-                <StatusStateIcon status={status} />
+                  {/* Step 3 */}
+                  <div className="flex items-start gap-3.5 relative z-10">
+                    <div className="h-7 w-7 rounded-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] flex items-center justify-center shrink-0 text-xs">
+                      <FileCheck className="h-4 w-4 text-[#A1A1AA]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-[#F4F4F5]">Document Submitted</p>
+                      <p className="text-xs text-[#71717A]">Proof of identity uploaded</p>
+                    </div>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="flex items-start gap-3.5 relative z-10">
+                    <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 text-xs ${
+                      status === "VERIFIED"
+                        ? "bg-emerald-950/60 border border-emerald-500/50 text-[#22C55E]"
+                        : status === "REJECTED"
+                        ? "bg-rose-950/60 border border-rose-500/50 text-[#EF4444]"
+                        : "bg-amber-950/60 border border-amber-500/50 text-[#F59E0B]"
+                    }`}>
+                      {status === "VERIFIED" ? <CheckCircle2 className="h-4 w-4" /> : status === "REJECTED" ? <XCircle className="h-4 w-4" /> : <Clock3 className="h-4 w-4" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-[#F4F4F5]">Verification Decision</p>
+                      <p className="text-xs text-[#71717A]">
+                        {status === "VERIFIED" ? "Identity confirmed" : status === "REJECTED" ? "Verification rejected" : "Pending admin review"}
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
               </div>
 
-              <div>
-                <span className={`ui-badge ${status === "VERIFIED" ? "ui-status-verified" : status === "REJECTED" ? "ui-status-rejected" : "ui-status-pending"}`}>
-                   {status}
-                 </span>
-                <p className="text-sm text-gray-700 mt-1">{activeStatus.message}</p>
+              {/* Document Upload Area */}
+              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-semibold text-[#F4F4F5]">Identity document</h3>
+                    <p className="text-xs text-[#A1A1AA] mt-0.5">Upload passport, driver's license or official ID.</p>
+                  </div>
+                  <Link to="/upload" className="text-xs text-[#A1A1AA] hover:text-[#F4F4F5] flex items-center gap-1 transition">
+                    <span>Advanced Workspace</span>
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+
+                {/* Dropzone Box */}
+                <label
+                  htmlFor="identity-document-upload"
+                  className="group block rounded-xl border border-dashed border-[#27272A] bg-[#18181B] hover:bg-[#1C1C20] hover:border-[#3F3F46] transition p-6 cursor-pointer text-center"
+                >
+                  <input
+                    id="identity-document-upload"
+                    type="file"
+                    onChange={handleFileChange}
+                    disabled={isBusy}
+                    className="sr-only"
+                  />
+
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="h-10 w-10 rounded-full bg-[#27272A] text-[#F4F4F5] flex items-center justify-center group-hover:scale-105 transition">
+                      <Upload className="h-5 w-5" />
+                    </div>
+                    <p className="text-sm font-medium text-[#F4F4F5]">
+                      Click to browse or drag and drop
+                    </p>
+                    <p className="text-xs text-[#71717A]">Supported files: PDF, JPG, PNG (max 10MB)</p>
+                  </div>
+                </label>
+
+                {/* Selected File Display */}
+                {selectedFile && (
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-[#18181B] border border-[#27272A] text-xs text-[#F4F4F5]">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="h-4 w-4 text-[#A1A1AA] shrink-0" />
+                      <span className="truncate font-medium">{selectedFile.name}</span>
+                    </div>
+                    <span className="text-[#71717A] text-[11px]">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                  </div>
+                )}
+
+                {/* Upload Action Button */}
+                <button
+                  onClick={handleUpload}
+                  disabled={isBusy || !selectedFile}
+                  className="w-full bg-[#F4F4F5] text-[#09090B] font-semibold py-2.5 px-4 rounded-lg hover:bg-white active:bg-zinc-200 disabled:opacity-40 transition flex items-center justify-center gap-2 text-sm shadow-md"
+                >
+                  {isUploading ? (
+                    <span className="inline-block h-4 w-4 rounded-full border-2 border-[#09090B] border-t-transparent animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                  <span>{isUploading ? "Uploading..." : "Upload Document"}</span>
+                </button>
+
+                {/* Upload Status Banners */}
+                {uploadMessage && (
+                  <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/50 text-xs text-[#22C55E] flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    <span>{uploadMessage}</span>
+                  </div>
+                )}
+                {uploadError && (
+                  <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 text-xs text-[#EF4444] flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <span>{uploadError}</span>
+                  </div>
+                )}
               </div>
+
             </div>
+
+            {/* Right Side Column (lg:col-span-1) */}
+            <div className="space-y-6">
+              
+              {/* Profile Card */}
+              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
+                <h3 className="text-base font-semibold text-[#F4F4F5]">Profile summary</h3>
+                
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#18181B] border border-[#27272A]">
+                  <div className="h-10 w-10 rounded-full bg-[#27272A] text-[#F4F4F5] flex items-center justify-center font-bold text-sm shrink-0">
+                    {userInitials}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-[#F4F4F5] truncate">{currentUser?.name || "User"}</p>
+                    <p className="text-xs text-[#71717A] truncate">{currentUser?.email || "-"}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-[#27272A] text-xs">
+                  <div className="flex items-center justify-between text-[#A1A1AA]">
+                    <span>Account Role</span>
+                    <span className="font-semibold text-[#F4F4F5]">USER</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[#A1A1AA]">
+                    <span>Status</span>
+                    {renderStatusBadge(status)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Activity Feed */}
+              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-[#F4F4F5]">Recent Activity</h3>
+                  <Activity className="h-4 w-4 text-[#71717A]" />
+                </div>
+
+                <ul className="space-y-3">
+                  {recentActivities.length === 0 && (
+                    <li className="text-xs text-[#71717A] py-2">No recent activity yet.</li>
+                  )}
+
+                  {recentActivities.map((item) => (
+                    <li key={item.id} className="p-3 rounded-lg bg-[#18181B] border border-[#27272A]/70 text-xs space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-[#F4F4F5]">{item.type}</span>
+                        <span className="text-[10px] text-[#71717A]">{formatActivityTimestamp(item.timestamp)}</span>
+                      </div>
+                      <p className="text-[#A1A1AA]">{item.description}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+            </div>
+
           </div>
-        </div>
+
+        </main>
       </div>
 
+      {/* Floating Toast Notifications */}
       {toasts.length > 0 && (
         <div className="fixed top-5 right-5 z-50 space-y-2 w-[min(92vw,22rem)] pointer-events-none">
           {toasts.map((toast) => (
             <div
               key={toast.id}
-              className={`rounded-xl border px-4 py-3 shadow-lg text-sm ${
+              className={`p-3.5 rounded-xl border shadow-xl text-xs font-medium pointer-events-auto flex items-center gap-2.5 ${
                 toast.type === "success"
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                  : "bg-rose-50 border-rose-200 text-rose-800"
+                  ? "bg-emerald-950/90 border-emerald-800/60 text-[#22C55E]"
+                  : "bg-rose-950/90 border-rose-800/60 text-[#EF4444]"
               }`}
               role="status"
               aria-live="polite"
             >
-              <p className="font-medium">{toast.message}</p>
+              {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+              <span>{toast.message}</span>
             </div>
           ))}
         </div>
       )}
+
     </div>
   );
 }
