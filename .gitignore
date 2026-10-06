@@ -33,3 +33,5 @@ backend/.env
 .commandcode/
 
 
+
+backend/backend/uploads

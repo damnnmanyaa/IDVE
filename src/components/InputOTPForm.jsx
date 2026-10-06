@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Shield, RefreshCw, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
 export default function InputOTPForm({
   email,
@@ -7,9 +8,9 @@ export default function InputOTPForm({
   initialOtp = "",
   initialInfo = "",
   onOtpChange,
-  title = "Verify your login",
-  description = "Enter the verification code we sent to your email address:",
-  verifyLabel = "Verify",
+  title = "Verify your email",
+  description = "Enter the verification code sent to your email address:",
+  verifyLabel = "Verify identity",
   verifyDisabled = false,
   verifyDisabledMessage = "",
   supportText = "Having trouble signing in?",
@@ -136,42 +137,52 @@ export default function InputOTPForm({
       onChange={(e) => handleBoxChange(index, e.target.value)}
       onKeyDown={(e) => handleBoxKeyDown(index, e)}
       onPaste={handleBoxPaste}
-      className="h-12 w-10 rounded-lg border border-slate-400 bg-white text-center text-xl text-gray-900 outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-200 sm:h-14 sm:w-14 sm:text-2xl"
+      className="h-12 w-11 rounded-lg border border-[#27272A] bg-[#18181B] text-center text-xl font-semibold text-[#F4F4F5] outline-none transition focus:border-[#71717A] focus:ring-1 focus:ring-[#71717A] sm:h-14 sm:w-13 sm:text-2xl"
       aria-label={`OTP digit ${index + 1}`}
     />
   );
 
   return (
-    <div className="ui-page ui-page-center">
-      <div className="ui-card w-full max-w-[520px]">
+    <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] flex items-center justify-center p-4">
+      <div className="w-full max-w-[500px] bg-[#111113] rounded-xl border border-[#27272A] shadow-2xl overflow-hidden">
+        
+        {/* Card Header */}
         <div className="p-6 sm:p-8">
-          <h2 className="ui-page-title mb-2">{title}</h2>
-          <p className="ui-body-copy mb-6">
-            {description}
-            <br />
-            email address: <span className="font-semibold">{maskedEmail}</span>.
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-9 w-9 rounded-lg bg-[#F4F4F5] text-[#09090B] flex items-center justify-center font-bold">
+              <Shield className="h-5 w-5 stroke-[2.5]" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-[#F4F4F5]">IDVE</span>
+          </div>
+
+          <h2 className="text-2xl font-semibold tracking-tight text-[#F4F4F5] mb-2">{title}</h2>
+          <p className="text-sm text-[#A1A1AA] leading-relaxed mb-6">
+            {description}{" "}
+            <span className="font-semibold text-[#F4F4F5]">{maskedEmail}</span>
           </p>
 
-          <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="ui-section-label">Verification code</p>
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A]">Verification code</span>
             <button
               onClick={handleResend}
               disabled={isResending}
-              className="ui-button-secondary w-full sm:w-auto"
+              className="text-xs font-medium text-[#A1A1AA] hover:text-[#F4F4F5] disabled:opacity-50 transition flex items-center gap-1.5"
             >
-              {isResending ? "Resending..." : "Resend Code"}
+              <RefreshCw className={`h-3.5 w-3.5 ${isResending ? "animate-spin" : ""}`} />
+              <span>{isResending ? "Resending..." : "Resend Code"}</span>
             </button>
           </div>
 
+          {/* 6-Digit OTP Boxes */}
           <div className="mt-4 mb-6">
-            <div className="flex items-center justify-center gap-2 sm:gap-4">
-              <div className="flex gap-0.5">
+            <div className="flex items-center justify-center gap-2 sm:gap-3">
+              <div className="flex gap-1.5">
                 {renderOtpInput(0)}
                 {renderOtpInput(1)}
                 {renderOtpInput(2)}
               </div>
-              <span className="text-xl font-medium text-gray-500 sm:text-2xl">-</span>
-              <div className="flex gap-0.5">
+              <span className="text-xl font-medium text-[#71717A] sm:text-2xl">-</span>
+              <div className="flex gap-1.5">
                 {renderOtpInput(3)}
                 {renderOtpInput(4)}
                 {renderOtpInput(5)}
@@ -182,27 +193,41 @@ export default function InputOTPForm({
           {extraContent}
         </div>
 
-        <div className="border-t border-gray-200 p-6 sm:p-8">
+        {/* Card Footer Actions */}
+        <div className="border-t border-[#27272A] bg-[#151515] p-6 sm:p-8">
           <button
             onClick={handleVerify}
             disabled={isVerifying || verifyDisabled}
-            className="ui-button-primary w-full"
+            className="w-full bg-[#F4F4F5] text-[#09090B] font-semibold py-2.5 px-4 rounded-lg hover:bg-white active:bg-zinc-200 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm shadow-md"
           >
-            {isVerifying ? "Verifying..." : verifyLabel}
+            <span>{isVerifying ? "Verifying..." : verifyLabel}</span>
+            <ArrowRight className="h-4 w-4" />
           </button>
 
           {verifyDisabledMessage && (
-            <p className="mt-3 text-sm text-amber-800" role="status">
+            <p className="mt-3 text-xs text-[#F59E0B] text-center" role="status">
               {verifyDisabledMessage}
             </p>
           )}
 
-<p className="mt-4 text-center text-sm leading-6 text-gray-600">
-             {supportText} <span className="ui-link">Contact support</span>
-           </p>
+          <p className="mt-4 text-center text-xs text-[#71717A]">
+            {supportText} <span className="text-[#A1A1AA] hover:text-[#F4F4F5] cursor-pointer underline underline-offset-2">Contact support</span>
+          </p>
 
-           {error && <p className="mt-4 text-sm text-red-800" role="alert">{error}</p>}
-           {info && <p className="mt-4 text-sm text-emerald-800" role="status">{info}</p>}
+          {/* Status Messages */}
+          {error && (
+            <div className="mt-4 p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 flex items-center gap-2 text-xs text-[#EF4444]" role="alert">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {info && (
+            <div className="mt-4 p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/50 flex items-center gap-2 text-xs text-[#22C55E]" role="status">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>{info}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

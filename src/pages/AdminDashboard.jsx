@@ -2,42 +2,29 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
-
-const STATUS_STYLES = {
-  VERIFIED: "ui-status-verified",
-  PENDING: "ui-status-pending",
-  REJECTED: "ui-status-rejected",
-};
-
-const ROLE_STYLES = {
-  USER: "ui-role-user",
-  ADMIN: "ui-role-admin",
-};
-
-const StatusIcon = ({ status }) => {
-  if (status === "VERIFIED") {
-    return (
-      <svg viewBox="0 0 20 20" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
-        <path d="M5 10.5l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-
-  if (status === "REJECTED") {
-    return (
-      <svg viewBox="0 0 20 20" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
-        <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
-      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="2" />
-      <path d="M10 6v4l2.5 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-};
+import {
+  Shield,
+  Users,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Search,
+  LogOut,
+  FileText,
+  ExternalLink,
+  X,
+  Check,
+  Activity,
+  UserCheck,
+  UserX,
+  ShieldAlert,
+  Settings,
+  LayoutDashboard,
+  User,
+  Mail,
+  Lock,
+  FileCheck
+} from "lucide-react";
 
 const normalizeStatus = (value) => {
   const normalized = String(value || "").toUpperCase();
@@ -53,7 +40,7 @@ const normalizeRole = (value) => {
 const formatDocumentLabel = (value) => {
   const path = String(value || "").trim();
   if (!path) {
-    return "No document";
+    return "No document uploaded";
   }
 
   const normalized = path.replace(/\\/g, "/");
@@ -84,18 +71,6 @@ const formatTimestamp = (value) => {
   return date.toLocaleString();
 };
 
-const getAuditActionStyle = (action) => {
-  if (action === "LOGIN") {
-    return "border-blue-200 bg-blue-100 text-blue-800";
-  }
-
-  if (action === "OTP") {
-    return "border-indigo-200 bg-indigo-100 text-indigo-800";
-  }
-
-  return "border-gray-400 bg-gray-100 text-gray-800";
-};
-
 export default function AdminDashboard() {
   const { logout, user } = useAuth();
   const [users, setUsers] = useState([]);
@@ -115,11 +90,11 @@ export default function AdminDashboard() {
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    return users.filter((user) => {
-      const normalizedRole = normalizeRole(user.role);
-      const normalizedStatus = normalizeStatus(user.verificationStatus);
-      const name = String(user.name || "").toLowerCase();
-      const email = String(user.email || "").toLowerCase();
+    return users.filter((userItem) => {
+      const normalizedRole = normalizeRole(userItem.role);
+      const normalizedStatus = normalizeStatus(userItem.verificationStatus);
+      const name = String(userItem.name || "").toLowerCase();
+      const email = String(userItem.email || "").toLowerCase();
 
       const matchesQuery = !query || name.includes(query) || email.includes(query);
       const matchesRole = roleFilter === "ALL" || normalizedRole === roleFilter;
@@ -128,7 +103,9 @@ export default function AdminDashboard() {
       return matchesQuery && matchesRole && matchesStatus;
     });
   }, [users, searchQuery, roleFilter, statusFilter]);
+
   const hasFilteredUsers = useMemo(() => filteredUsers.length > 0, [filteredUsers]);
+
   const selectedUserDocument = useMemo(() => {
     if (!selectedUser) {
       return "";
@@ -145,6 +122,15 @@ export default function AdminDashboard() {
 
     return typeof candidate === "string" ? candidate : "";
   }, [selectedUser]);
+
+  const stats = useMemo(() => {
+    const total = users.length;
+    const pending = users.filter((u) => normalizeStatus(u.verificationStatus) === "PENDING").length;
+    const verified = users.filter((u) => normalizeStatus(u.verificationStatus) === "VERIFIED").length;
+    const rejected = users.filter((u) => normalizeStatus(u.verificationStatus) === "REJECTED").length;
+
+    return { total, pending, verified, rejected };
+  }, [users]);
 
   const adminIdentity = useMemo(() => {
     let name = user?.name || "";
@@ -179,10 +165,10 @@ export default function AdminDashboard() {
         const res = await api.get("/api/admin/users");
         const rows = Array.isArray(res.data) ? res.data : [];
         setUsers(
-          rows.map((user) => ({
-            ...user,
-            role: normalizeRole(user.role),
-            verificationStatus: normalizeStatus(user.verificationStatus),
+          rows.map((userItem) => ({
+            ...userItem,
+            role: normalizeRole(userItem.role),
+            verificationStatus: normalizeStatus(userItem.verificationStatus),
           }))
         );
       } catch (err) {
@@ -251,8 +237,8 @@ export default function AdminDashboard() {
     }
   };
 
-  const openUserDetails = (user) => {
-    setSelectedUser(user);
+  const openUserDetails = (userItem) => {
+    setSelectedUser(userItem);
   };
 
   const closeUserDetails = () => {
@@ -332,339 +318,479 @@ export default function AdminDashboard() {
     fetchAuditLogs();
   }, []);
 
+  const renderStatusBadge = (statusVal) => {
+    if (statusVal === "VERIFIED") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30">
+          <CheckCircle2 className="h-3 w-3" />
+          VERIFIED
+        </span>
+      );
+    }
+    if (statusVal === "REJECTED") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30">
+          <XCircle className="h-3 w-3" />
+          REJECTED
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30">
+        <Clock className="h-3 w-3" />
+        PENDING REVIEW
+      </span>
+    );
+  };
+
   return (
-    <div className="ui-app-shell min-h-screen">
-      <aside className="ui-sidebar fixed left-0 top-0 hidden h-screen w-64 border-r p-6 lg:block">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="ui-brand-mark h-3.5 w-3.5 rounded" />
-          <p className="text-xl font-semibold tracking-wide">IDVE</p>
+    <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] flex">
+      
+      {/* Sidebar Desktop */}
+      <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 left-0 bg-[#111113] border-r border-[#27272A] z-30 justify-between p-5">
+        <div>
+          {/* Brand Header */}
+          <div className="flex items-center gap-3 mb-8 px-2">
+            <div className="h-8 w-8 rounded-lg bg-[#F4F4F5] text-[#09090B] flex items-center justify-center font-bold">
+              <Shield className="h-4 w-4 stroke-[2.5]" />
+            </div>
+            <span className="text-lg font-bold tracking-tight text-[#F4F4F5]">IDVE</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#18181B] text-[#A1A1AA] border border-[#27272A] font-mono">SOC ADMIN</span>
+          </div>
+
+          {/* Navigation */}
+          <nav className="space-y-1">
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#18181B] text-[#F4F4F5] font-medium text-sm border border-[#27272A]">
+              <LayoutDashboard className="h-4 w-4 text-[#F4F4F5]" />
+              <span>Admin Console</span>
+            </button>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+              <Users className="h-4 w-4 text-[#71717A]" />
+              <span>User Management</span>
+            </button>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+              <Activity className="h-4 w-4 text-[#71717A]" />
+              <span>Security Audit Logs</span>
+            </button>
+          </nav>
         </div>
 
-        <nav className="space-y-2">
-          <button className="ui-sidebar-active w-full rounded-lg px-3 py-2 text-left">Dashboard</button>
-          <button className="ui-sidebar-item w-full rounded-lg px-3 py-2 text-left">Users</button>
-          <button className="ui-sidebar-item w-full rounded-lg px-3 py-2 text-left">Audit Logs</button>
-          <button className="ui-sidebar-item w-full rounded-lg px-3 py-2 text-left">Settings</button>
-        </nav>
+        {/* Sidebar Footer */}
+        <div className="pt-4 border-t border-[#27272A] space-y-1">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
+            <Settings className="h-4 w-4 text-[#71717A]" />
+            <span>Settings</span>
+          </button>
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition text-sm font-medium"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span>Sign Out</span>
+          </button>
+        </div>
       </aside>
 
-      <div className="min-h-screen lg:ml-64">
-        <header className="sticky top-0 z-20 border-b border-gray-200 bg-white px-4 py-4 sm:px-6 md:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <h1 className="ui-page-title">Admin Dashboard</h1>
+      {/* Main Workspace */}
+      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
+        
+        {/* Top Header */}
+        <header className="sticky top-0 z-20 bg-[#111113]/90 backdrop-blur border-b border-[#27272A] px-4 py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
+          <h1 className="text-lg font-semibold text-[#F4F4F5] tracking-tight">Admin Console</h1>
 
-            <div className="flex items-center gap-4">
-              <div className="text-right leading-tight">
-                <p className="text-sm font-medium text-gray-900">{adminIdentity.name}</p>
-                <p className="text-xs text-gray-500">{adminIdentity.email}</p>
-              </div>
-              <button
-                onClick={logout}
-                className="ui-button-primary"
-              >
-                Logout
-              </button>
+          <div className="flex items-center gap-4">
+            <div className="text-right leading-tight">
+              <p className="text-xs font-semibold text-[#F4F4F5]">{adminIdentity.name}</p>
+              <p className="text-[11px] text-[#71717A] max-w-[160px] truncate">{adminIdentity.email}</p>
             </div>
+            <button
+              onClick={logout}
+              className="bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-[#F4F4F5] text-xs font-medium px-3 py-1.5 rounded-lg transition"
+            >
+              Logout
+            </button>
           </div>
         </header>
 
-        <main className="p-4 sm:p-6 md:p-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="ui-card mb-6 p-5 md:p-6">
-              <p className="text-sm text-gray-500">Manage users and verification decisions.</p>
+        {/* Main Body Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+          
+          <div>
+            <h2 className="text-2xl font-bold text-[#F4F4F5] tracking-tight">Identity & Access Review</h2>
+            <p className="text-sm text-[#A1A1AA] mt-1">Review identity verification requests, approve users, and inspect security audit logs.</p>
+          </div>
+
+          {error && (
+            <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/50 text-xs text-[#EF4444] flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Metric Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+                <span>Total Identities</span>
+                <Users className="h-4 w-4 text-[#A1A1AA]" />
+              </div>
+              <p className="text-2xl font-bold text-[#F4F4F5]">{stats.total}</p>
+              <p className="text-[11px] text-[#71717A]">Registered accounts</p>
             </div>
 
-            {error && (
-              <div className="ui-feedback ui-feedback-error mb-4">
-                {error}
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+                <span>Pending Review</span>
+                <Clock className="h-4 w-4 text-[#F59E0B]" />
               </div>
-            )}
+              <p className="text-2xl font-bold text-[#F59E0B]">{stats.pending}</p>
+              <p className="text-[11px] text-[#71717A]">Awaiting admin decision</p>
+            </div>
 
-            <div className="ui-card overflow-hidden">
-              <div className="px-4 md:px-5 py-4 border-b border-gray-200 bg-white">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                  <div className="w-full md:max-w-sm">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search by name or email"
-                      className="ui-input px-3 py-2 text-sm"
-                    />
-                  </div>
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+                <span>Verified Users</span>
+                <UserCheck className="h-4 w-4 text-[#22C55E]" />
+              </div>
+              <p className="text-2xl font-bold text-[#22C55E]">{stats.verified}</p>
+              <p className="text-[11px] text-[#71717A]">Approved access</p>
+            </div>
 
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:justify-end">
-                    <select
-                      value={roleFilter}
-                      onChange={(e) => setRoleFilter(e.target.value)}
-                      className="ui-input rounded-lg px-3 py-2 text-sm"
-                    >
-                      <option value="ALL">All Roles</option>
-                      <option value="USER">USER</option>
-                      <option value="ADMIN">ADMIN</option>
-                    </select>
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+                <span>Rejected Requests</span>
+                <UserX className="h-4 w-4 text-[#EF4444]" />
+              </div>
+              <p className="text-2xl font-bold text-[#EF4444]">{stats.rejected}</p>
+              <p className="text-[11px] text-[#71717A]">Access denied</p>
+            </div>
+          </div>
 
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="ui-input rounded-lg px-3 py-2 text-sm"
-                    >
-                      <option value="ALL">All Statuses</option>
-                      <option value="PENDING">PENDING</option>
-                      <option value="VERIFIED">VERIFIED</option>
-                      <option value="REJECTED">REJECTED</option>
-                    </select>
-                  </div>
-                </div>
+          {/* Users Table Card */}
+          <div className="rounded-xl bg-[#111113] border border-[#27272A] overflow-hidden">
+            
+            {/* Search & Filter Toolbar */}
+            <div className="p-4 border-b border-[#27272A] flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-md">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name or email..."
+                  className="w-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3.5 py-2 text-xs pl-9 outline-none focus:border-[#71717A] focus:ring-1 focus:ring-[#71717A]"
+                />
+                <Search className="h-3.5 w-3.5 text-[#71717A] absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead className="bg-gray-50 text-gray-700">
+              <div className="flex items-center gap-2">
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className="bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#71717A]"
+                >
+                  <option value="ALL">All Roles</option>
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#71717A]"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="PENDING">PENDING</option>
+                  <option value="VERIFIED">VERIFIED</option>
+                  <option value="REJECTED">REJECTED</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#151515] text-[#A1A1AA] font-semibold border-b border-[#27272A]">
+                  <tr>
+                    <th className="px-4 py-3">Name</th>
+                    <th className="px-4 py-3">Email</th>
+                    <th className="px-4 py-3">Role</th>
+                    <th className="px-4 py-3">Document</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#27272A]/60 text-[#F4F4F5]">
+                  {isLoading && (
                     <tr>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Name</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Email</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Role</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Document</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Status</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Actions</th>
+                      <td colSpan={6} className="px-4 py-8 text-center text-[#71717A]">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="h-4 w-4 rounded-full border-2 border-[#27272A] border-t-[#F4F4F5] animate-spin" />
+                          <span>Loading users...</span>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {isLoading && (
-                      <tr>
-                        <td className="px-4 py-6 text-gray-500" colSpan={6}>
-                          <div className="flex items-center gap-3">
-                            <span className="ui-spinner" />
-                            <span>Loading users...</span>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
+                  )}
 
-                    {!isLoading && !hasUsers && (
-                      <tr>
-                        <td className="px-4 py-6 text-gray-500" colSpan={6}>
-                          No users found.
-                        </td>
-                      </tr>
-                    )}
+                  {!isLoading && !hasUsers && (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-[#71717A]">
+                        <Users className="h-5 w-5 text-[#71717A] mx-auto mb-1.5" />
+                        <p>No user accounts registered.</p>
+                      </td>
+                    </tr>
+                  )}
 
-                    {!isLoading && hasUsers && !hasFilteredUsers && (
-                      <tr>
-                        <td className="px-4 py-6 text-gray-500" colSpan={6}>
-                          No matching users for current search/filters.
-                        </td>
-                      </tr>
-                    )}
+                  {!isLoading && hasUsers && !hasFilteredUsers && (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-[#71717A]">
+                        <Search className="h-5 w-5 text-[#71717A] mx-auto mb-1.5" />
+                        <p>No matching users for active filter criteria.</p>
+                      </td>
+                    </tr>
+                  )}
 
-                    {!isLoading &&
-                      filteredUsers.map((user) => {
-                        const isBusy = !!busyByUserId[user.id];
-                        const status = normalizeStatus(user.verificationStatus);
-                        const isApproveDisabled = isBusy || isLoading || status === "VERIFIED";
-                        const isRejectDisabled = isBusy || isLoading || status === "REJECTED";
+                  {!isLoading &&
+                    filteredUsers.map((userItem) => {
+                      const isBusy = !!busyByUserId[userItem.id];
+                      const status = normalizeStatus(userItem.verificationStatus);
+                      const isApproveDisabled = isBusy || isLoading || status === "VERIFIED";
+                      const isRejectDisabled = isBusy || isLoading || status === "REJECTED";
 
-                        return (
-                          <tr
-                            key={user.id}
-                            onClick={() => openUserDetails(user)}
-                            className="cursor-pointer border-t border-gray-200 transition-colors hover:bg-slate-50"
-                          >
-                            <td className="px-4 py-3 text-gray-900 font-medium">{user.name}</td>
-                            <td className="px-4 py-3 text-gray-700 break-all">{user.email}</td>
-                            <td className="px-4 py-3 text-gray-700">
-                              <span className={`ui-badge ${ROLE_STYLES[normalizeRole(user.role)] || "ui-role-user"}`}>
-                                {normalizeRole(user.role)}
-                              </span>
-                            </td>
-                            <td className="max-w-[15rem] px-4 py-3 text-gray-700" title={user.documentPath || "No document"}>
-                              <span className="block min-w-0 truncate">{formatDocumentLabel(user.documentPath)}</span>
-                            </td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`ui-badge ${STATUS_STYLES[status]}`} 
+                      return (
+                        <tr
+                          key={userItem.id}
+                          onClick={() => openUserDetails(userItem)}
+                          className="hover:bg-[#18181B]/60 transition cursor-pointer"
+                        >
+                          <td className="px-4 py-3.5 font-medium text-[#F4F4F5]">{userItem.name}</td>
+                          <td className="px-4 py-3.5 text-[#A1A1AA]">{userItem.email}</td>
+                          <td className="px-4 py-3.5">
+                            <span className="px-2 py-0.5 rounded bg-[#18181B] text-[11px] font-semibold text-[#F4F4F5] border border-[#27272A]">
+                              {normalizeRole(userItem.role)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-[#A1A1AA] max-w-[14rem] truncate">
+                            {formatDocumentLabel(userItem.documentPath)}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            {renderStatusBadge(status)}
+                          </td>
+                          <td className="px-4 py-3.5 text-right">
+                            <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => confirmAndHandleAction(userItem.id, "approve", userItem.email)}
+                                disabled={isApproveDisabled}
+                                className="px-2.5 py-1 rounded text-xs font-semibold bg-[#F4F4F5] text-[#09090B] hover:bg-white active:bg-zinc-200 disabled:opacity-30 transition flex items-center gap-1 shadow-sm"
                               >
-                                <StatusIcon status={status} />
-                                {status}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    confirmAndHandleAction(user.id, "approve", user.email);
-                                  }}
-                                  disabled={isApproveDisabled}
-                                  title={status === "VERIFIED" ? "Already approved" : "Approve user"}
-                                  className="ui-button-success px-3 py-1.5 text-xs"
-                                >
-                                  <span aria-hidden="true">✔</span>
-                                  <span>Approve</span>
-                                </button>
-                                <button
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    confirmAndHandleAction(user.id, "reject", user.email);
-                                  }}
-                                  disabled={isRejectDisabled}
-                                  title={status === "REJECTED" ? "Already rejected" : "Reject user"}
-                                  className="ui-button-danger px-3 py-1.5 text-xs"
-                                >
-                                  <span aria-hidden="true">✖</span>
-                                  <span>Reject</span>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
+                                <Check className="h-3.5 w-3.5 text-[#22C55E]" />
+                                <span>Approve</span>
+                              </button>
+                              <button
+                                onClick={() => confirmAndHandleAction(userItem.id, "reject", userItem.email)}
+                                disabled={isRejectDisabled}
+                                className="px-2.5 py-1 rounded text-xs font-semibold bg-[#18181B] text-rose-400 border border-rose-800/50 hover:bg-rose-950/40 disabled:opacity-30 transition flex items-center gap-1"
+                              >
+                                <X className="h-3.5 w-3.5 text-[#EF4444]" />
+                                <span>Reject</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Audit Logs Section */}
+          <div className="p-5 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-[#F4F4F5]">Security Audit Log</h3>
+                <p className="text-xs text-[#A1A1AA] mt-0.5">Real-time system events, authentication requests, and admin actions.</p>
               </div>
+              <span className="text-xs text-[#71717A]">{auditLogs.length} events logged</span>
             </div>
 
-            <section className="ui-card mt-6 p-5 md:p-6">
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div>
-                  <h2 className="text-base md:text-lg font-semibold text-gray-900">Audit Logs</h2>
-                  <p className="text-sm text-gray-500">Track login, OTP, and admin actions.</p>
-                </div>
-                <span className="text-xs font-medium text-gray-500">{auditLogs.length} events</span>
-              </div>
-
-              <div className="max-h-72 overflow-x-auto overflow-y-auto rounded-xl border border-gray-200">
-                <table className="min-w-full text-sm">
-                  <thead className="sticky top-0 bg-gray-50 text-gray-700">
+            <div className="max-h-64 overflow-y-auto rounded-lg border border-[#27272A]">
+              <table className="w-full text-left text-xs">
+                <thead className="sticky top-0 bg-[#151515] text-[#A1A1AA] font-semibold border-b border-[#27272A]">
+                  <tr>
+                    <th className="px-4 py-2.5">Action</th>
+                    <th className="px-4 py-2.5">User Email</th>
+                    <th className="px-4 py-2.5 text-right">Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#27272A]/50 text-[#F4F4F5]">
+                  {isAuditLoading && (
                     <tr>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Action</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">User Email</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-800">Timestamp</th>
+                      <td colSpan={3} className="px-4 py-4 text-center text-[#71717A]">Loading logs...</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {isAuditLoading && (
-                      <tr>
-                        <td colSpan={3} className="px-4 py-6 text-gray-500">
-                          <div className="flex items-center gap-3">
-                            <span className="ui-spinner" />
-                            <span>Loading audit logs...</span>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
+                  )}
 
-                    {!isAuditLoading && auditLogs.length === 0 && (
-                      <tr>
-                        <td colSpan={3} className="px-4 py-5 text-gray-500">
-                          No audit logs available yet.
-                        </td>
-                      </tr>
-                    )}
+                  {!isAuditLoading && auditLogs.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-4 text-center text-[#71717A]">No audit logs available.</td>
+                    </tr>
+                  )}
 
-                    {!isAuditLoading && auditLogs.map((log) => (
-                      <tr key={log.id} className="border-t border-gray-200 transition-colors hover:bg-slate-50">
-                        <td className="px-4 py-3">
-<span
-                             className={`ui-badge ${getAuditActionStyle(log.action)}`}
-                           >
+                  {!isAuditLoading &&
+                    auditLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-[#18181B]/40 transition">
+                        <td className="px-4 py-2.5">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                            log.action === "LOGIN"
+                              ? "bg-blue-950/50 text-blue-400 border border-blue-800/50"
+                              : log.action === "OTP"
+                              ? "bg-indigo-950/50 text-indigo-400 border border-indigo-800/50"
+                              : "bg-zinc-800 text-zinc-200 border border-zinc-700"
+                          }`}>
                             {log.action}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-700 break-all">{log.userEmail}</td>
-                        <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{formatTimestamp(log.timestamp)}</td>
+                        <td className="px-4 py-2.5 text-[#A1A1AA]">{log.userEmail}</td>
+                        <td className="px-4 py-2.5 text-right text-[#71717A]">{formatTimestamp(log.timestamp)}</td>
                       </tr>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+                </tbody>
+              </table>
+            </div>
           </div>
+
         </main>
       </div>
 
+      {/* Two-Column User Review Detail Modal */}
       {selectedUser && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
           onClick={closeUserDetails}
         >
           <div
-            className="ui-card max-h-[90vh] w-full max-w-lg overflow-y-auto p-6 shadow-2xl md:p-7"
-            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-3xl bg-[#111113] rounded-xl border border-[#27272A] shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 mb-5">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">User Details</h2>
-                <p className="text-sm text-gray-500 mt-1">Detailed information for the selected user.</p>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#27272A] bg-[#151515]">
+              <div className="flex items-center gap-2.5">
+                <Shield className="h-5 w-5 text-[#F4F4F5]" />
+                <h3 className="text-base font-semibold text-[#F4F4F5]">Verification Review Interface</h3>
               </div>
               <button
                 onClick={closeUserDetails}
-                className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
-                aria-label="Close user detail modal"
+                className="p-1.5 rounded-lg bg-[#18181B] text-[#71717A] hover:text-[#F4F4F5] border border-[#27272A] transition"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <p className="ui-section-label mb-1">Name</p>
-                <p className="text-sm font-medium text-gray-900">{selectedUser.name || "-"}</p>
-              </div>
+            {/* Modal Body: Left/Right Split Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#27272A] p-6 gap-6">
+              
+              {/* LEFT COLUMN: DOCUMENT */}
+              <div className="space-y-4">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">DOCUMENT</span>
+                
+                <div className="p-5 rounded-xl bg-[#18181B] border border-[#27272A] space-y-4 text-center">
+                  <div className="h-12 w-12 rounded-full bg-[#27272A] text-[#F4F4F5] flex items-center justify-center mx-auto">
+                    <FileText className="h-6 w-6 text-[#A1A1AA]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#F4F4F5] break-all">
+                      {formatDocumentLabel(selectedUserDocument)}
+                    </p>
+                    <p className="text-xs text-[#71717A] mt-0.5">Uploaded Identity Artifact</p>
+                  </div>
 
-              <div>
-                <p className="ui-section-label mb-1">Email</p>
-                <p className="text-sm font-medium text-gray-900 break-all">{selectedUser.email || "-"}</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="ui-section-label mb-1">Role</p>
-                  <span className={`ui-badge ${ROLE_STYLES[normalizeRole(selectedUser.role)] || "ui-role-user"}`}>
-                    {normalizeRole(selectedUser.role)}
-                  </span>
-                </div>
-
-                <div>
-                  <p className="ui-section-label mb-1">Status</p>
-                  <span
-                    className={`ui-badge ${STATUS_STYLES[normalizeStatus(selectedUser.verificationStatus)]}`}
-                  >
-                    <StatusIcon status={normalizeStatus(selectedUser.verificationStatus)} />
-                    {normalizeStatus(selectedUser.verificationStatus)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
-                <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Uploaded Document</p>
-
-                {selectedUserDocument ? (
-                  selectedUserDocument.startsWith("http://") ||
-                  selectedUserDocument.startsWith("https://") ||
-                  selectedUserDocument.startsWith("/") ? (
-                    <a
-                      href={selectedUserDocument}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="ui-link text-sm font-medium"
-                    >
-                      View uploaded document
-                    </a>
+                  {selectedUserDocument ? (
+                    selectedUserDocument.startsWith("http://") ||
+                    selectedUserDocument.startsWith("https://") ||
+                    selectedUserDocument.startsWith("/") ? (
+                      <a
+                        href={selectedUserDocument}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] text-xs font-medium text-[#F4F4F5] hover:bg-zinc-700 transition"
+                      >
+                        <span>Open document preview</span>
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : (
+                      <p className="text-xs font-mono text-[#A1A1AA] bg-[#111113] p-2 rounded border border-[#27272A] truncate">
+                        {selectedUserDocument}
+                      </p>
+                    )
                   ) : (
-                    <p className="text-sm font-medium text-gray-800">{selectedUserDocument}</p>
-                  )
-                ) : (
-                  <p className="text-sm text-gray-500">No document uploaded yet.</p>
-                )}
+                    <p className="text-xs text-[#71717A] italic">No document file attached</p>
+                  )}
+                </div>
               </div>
+
+              {/* RIGHT COLUMN: APPLICANT & DECISION */}
+              <div className="space-y-5">
+                
+                {/* APPLICANT SECTION */}
+                <div className="space-y-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">APPLICANT</span>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-[#A1A1AA]">
+                      <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5 text-[#71717A]" /> Name</span>
+                      <span className="font-semibold text-[#F4F4F5]">{selectedUser.name || "-"}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[#A1A1AA]">
+                      <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-[#71717A]" /> Email</span>
+                      <span className="font-semibold text-[#F4F4F5] max-w-[180px] truncate">{selectedUser.email || "-"}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[#A1A1AA]">
+                      <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-[#71717A]" /> Role</span>
+                      <span className="px-2 py-0.5 rounded bg-[#18181B] font-semibold text-[#F4F4F5] border border-[#27272A]">
+                        {normalizeRole(selectedUser.role)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VERIFICATION STATUS */}
+                <div className="space-y-2 pt-3 border-t border-[#27272A]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">VERIFICATION STATUS</span>
+                  <div>
+                    {renderStatusBadge(normalizeStatus(selectedUser.verificationStatus))}
+                  </div>
+                </div>
+
+                {/* VERIFICATION DECISION BUTTONS */}
+                <div className="space-y-2.5 pt-3 border-t border-[#27272A]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">VERIFICATION DECISION</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => confirmAndHandleAction(selectedUser.id, "approve", selectedUser.email)}
+                      disabled={normalizeStatus(selectedUser.verificationStatus) === "VERIFIED"}
+                      className="w-full bg-[#F4F4F5] text-[#09090B] font-semibold py-2 px-3 rounded-lg hover:bg-white active:bg-zinc-200 disabled:opacity-30 transition flex items-center justify-center gap-1.5 text-xs shadow-md"
+                    >
+                      <Check className="h-4 w-4 text-[#22C55E]" />
+                      <span>Approve</span>
+                    </button>
+                    <button
+                      onClick={() => confirmAndHandleAction(selectedUser.id, "reject", selectedUser.email)}
+                      disabled={normalizeStatus(selectedUser.verificationStatus) === "REJECTED"}
+                      className="w-full bg-[#18181B] text-rose-400 border border-rose-800/50 hover:bg-rose-950/40 disabled:opacity-30 transition font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs"
+                    >
+                      <X className="h-4 w-4 text-[#EF4444]" />
+                      <span>Reject</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
 
-            <div className="mt-6 flex justify-end">
+            {/* Modal Footer */}
+            <div className="flex justify-end px-6 py-3.5 border-t border-[#27272A] bg-[#151515]">
               <button
                 onClick={closeUserDetails}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
+                className="px-4 py-1.5 rounded-lg bg-[#18181B] text-[#A1A1AA] hover:text-[#F4F4F5] border border-[#27272A] text-xs font-medium transition"
               >
                 Close
               </button>
@@ -673,27 +799,27 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Toasts */}
       {toasts.length > 0 && (
         <div className="fixed top-5 right-5 z-[60] space-y-2 w-[min(92vw,22rem)] pointer-events-none">
           {toasts.map((toast) => (
             <div
               key={toast.id}
-              className={`rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm text-sm pointer-events-auto ${
+              className={`p-3.5 rounded-xl border shadow-xl text-xs font-medium pointer-events-auto flex items-center gap-2.5 ${
                 toast.type === "success"
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                  : "bg-rose-50 border-rose-200 text-rose-800"
+                  ? "bg-emerald-950/90 border-emerald-800/60 text-[#22C55E]"
+                  : "bg-rose-950/90 border-rose-800/60 text-[#EF4444]"
               }`}
               role="status"
               aria-live="polite"
             >
-              <div className="flex items-start gap-2">
-                <span className="font-semibold">{toast.type === "success" ? "Success" : "Error"}</span>
-                <span className="text-current/90">{toast.message}</span>
-              </div>
+              {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <ShieldAlert className="h-4 w-4 shrink-0" />}
+              <span>{toast.message}</span>
             </div>
           ))}
         </div>
       )}
+
     </div>
   );
 }

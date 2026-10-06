@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import InputOTPForm from "../components/InputOTPForm";
 import { API_BASE_URL } from "../services/api";
+import { Shield, Mail, Lock, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 
 const GENERIC_MESSAGE = "If an account exists, password reset instructions have been sent.";
 
@@ -72,22 +73,37 @@ export default function ForgotPassword() {
           }
         }}
         title="Reset your password"
-        description="Enter the verification code we sent to your"
+        description="Enter the verification code sent to your"
         verifyLabel="Reset password"
         supportText="Need help resetting your password?"
         extraContent={(
           <div className="mt-6">
-            <label className="ui-section-label" htmlFor="new-password">New password</label>
-            <input
-              id="new-password"
-              type="password"
-              value={newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-              placeholder="At least 8 characters"
-              className="ui-input mt-1"
-            />
-            {message && <p className="mt-3 text-sm text-emerald-800" role="status">{message}</p>}
-            {error && <p className="mt-3 text-sm text-red-800" role="alert">{error}</p>}
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5" htmlFor="new-password">
+              New password
+            </label>
+            <div className="relative">
+              <input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+                placeholder="At least 8 characters"
+                className="w-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3.5 py-2.5 text-sm pl-10 outline-none focus:border-[#71717A] focus:ring-1 focus:ring-[#71717A] transition"
+              />
+              <Lock className="h-4 w-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            </div>
+            {message && (
+              <div className="mt-3 p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/50 flex items-center gap-2 text-xs text-[#22C55E]" role="status">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <span>{message}</span>
+              </div>
+            )}
+            {error && (
+              <div className="mt-3 p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 flex items-center gap-2 text-xs text-[#EF4444]" role="alert">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
           </div>
         )}
       />
@@ -95,42 +111,71 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="ui-page ui-page-center">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <div className="ui-brand-mark h-4 w-4 rounded" />
-          <h1 className="text-lg font-semibold">IDVE</h1>
+    <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#111113] p-8 rounded-xl border border-[#27272A] shadow-2xl">
+        
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="h-9 w-9 rounded-lg bg-[#F4F4F5] text-[#09090B] flex items-center justify-center font-bold">
+            <Shield className="h-5 w-5 stroke-[2.5]" />
+          </div>
+          <span className="text-xl font-bold tracking-tight text-[#F4F4F5]">IDVE</span>
         </div>
 
-        <h2 className="ui-page-title mb-2 text-center">Forgot your password?</h2>
-        <p className="ui-body-copy mb-6 text-center">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#F4F4F5] mb-2">Forgot your password?</h2>
+        <p className="text-sm text-[#A1A1AA] leading-relaxed mb-6">
           Enter your email address and we&apos;ll send you a verification code.
         </p>
 
-        <label className="ui-section-label" htmlFor="reset-email">Email</label>
-        <input
-          id="reset-email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@example.com"
-          className="ui-input mt-1"
-        />
+        {/* Email Field */}
+        <div className="mb-6">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5" htmlFor="reset-email">
+            Email Address
+          </label>
+          <div className="relative">
+            <input
+              id="reset-email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              className="w-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3.5 py-2.5 text-sm pl-10 outline-none focus:border-[#71717A] focus:ring-1 focus:ring-[#71717A] transition"
+            />
+            <Mail className="h-4 w-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          </div>
+        </div>
 
+        {/* Submit Button */}
         <button
           type="button"
           onClick={handleRequestReset}
           disabled={isRequesting}
-          className="ui-button-primary mt-6 w-full"
+          className="w-full bg-[#F4F4F5] text-[#09090B] font-semibold py-2.5 px-4 rounded-lg hover:bg-white active:bg-zinc-200 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm shadow-md"
         >
-          {isRequesting ? "Sending code..." : "Send reset code"}
+          <span>{isRequesting ? "Sending code..." : "Send reset code"}</span>
+          <ArrowRight className="h-4 w-4" />
         </button>
 
-        {message && <p className="ui-feedback ui-feedback-success mt-4" role="status">{message}</p>}
-        {error && <p className="ui-feedback ui-feedback-error mt-4" role="alert">{error}</p>}
+        {/* Feedback Messages */}
+        {message && (
+          <div className="mt-4 p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/50 flex items-center gap-2 text-xs text-[#22C55E]" role="status">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <span>{message}</span>
+          </div>
+        )}
 
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Remembered your password? <Link to="/login" className="ui-link font-medium">Log in</Link>
+        {error && (
+          <div className="mt-4 p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 flex items-center gap-2 text-xs text-[#EF4444]" role="alert">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <p className="mt-6 text-center text-xs text-[#71717A]">
+          Remembered your password?{" "}
+          <Link to="/login" className="text-[#F4F4F5] font-medium hover:underline underline-offset-2">
+            Log in
+          </Link>
         </p>
       </div>
     </div>
