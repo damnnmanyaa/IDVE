@@ -13,6 +13,7 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isRequesting, setIsRequesting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const getErrorMessage = async (response, fallback) => {
     try {
@@ -54,13 +55,55 @@ export default function ForgotPassword() {
     }
   };
 
+  const handleResetPassword = async (otp) => {
+    if (newPassword.length < 8) {
+      throw new Error("Choose a password with at least 8 characters.");
+    }
+
+    setIsResetting(true);
+    setError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp, newPassword }),
+      });
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "Unable to reset password."));
+      }
+      setMessage("Your password has been updated. You can now sign in.");
+      setStep("complete");
+    } catch (resetError) {
+      setError(resetError?.message || "Unable to reset password.");
+      throw resetError;
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  if (step === "complete") {
+    return (
+      <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] flex items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-xl border border-[#27272A] bg-[#111113] p-8 text-center shadow-2xl">
+          <div className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-full bg-emerald-500/10 text-emerald-400">
+            <CheckCircle2 className="h-6 w-6" />
+          </div>
+          <h1 className="text-xl font-semibold">Password updated</h1>
+          <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">Sign in with your new password to continue.</p>
+          <Link to="/login" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#F4F4F5] px-4 py-2.5 text-sm font-semibold text-[#09090B]">
+            Return to sign in <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (step === "reset") {
     return (
       <InputOTPForm
         email={email}
-        onVerify={async () => {}}
-        verifyDisabled
-        verifyDisabledMessage="Password reset is temporarily unavailable — please contact an admin."
+        onVerify={handleResetPassword}
+        verifyLabel={isResetting ? "Updating password…" : "Reset password"}
         onResend={async () => {
           const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
             method: "POST",
@@ -74,7 +117,6 @@ export default function ForgotPassword() {
         }}
         title="Reset your password"
         description="Enter the verification code sent to your"
-        verifyLabel="Reset password"
         supportText="Need help resetting your password?"
         extraContent={(
           <div className="mt-6">
@@ -88,6 +130,7 @@ export default function ForgotPassword() {
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
                 placeholder="At least 8 characters"
+                minLength={8}
                 className="w-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3.5 py-2.5 text-sm pl-10 outline-none focus:border-[#71717A] focus:ring-1 focus:ring-[#71717A] transition"
               />
               <Lock className="h-4 w-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2" />

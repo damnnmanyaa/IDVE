@@ -59,6 +59,9 @@ const normalizeAuditAction = (value) => {
     return "LOGIN";
   }
 
+  if (action.includes("approv")) return "APPROVED";
+  if (action.includes("reject")) return "REJECTED";
+
   return "ADMIN ACTION";
 };
 
@@ -82,9 +85,18 @@ export default function AdminDashboard() {
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedUser, setSelectedUser] = useState(null);
+  const [documentPreviewUrl, setDocumentPreviewUrl] = useState("");
+  const [isLoadingDocument, setIsLoadingDocument] = useState(false);
+  const [isResettingDemo, setIsResettingDemo] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
   const [toasts, setToasts] = useState([]);
   const hasLoggedLoginEvent = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      if (documentPreviewUrl) URL.revokeObjectURL(documentPreviewUrl);
+    };
+  }, [documentPreviewUrl]);
 
   const hasUsers = useMemo(() => users.length > 0, [users]);
   const filteredUsers = useMemo(() => {
@@ -238,11 +250,28 @@ export default function AdminDashboard() {
   };
 
   const openUserDetails = (userItem) => {
+    setDocumentPreviewUrl("");
     setSelectedUser(userItem);
   };
 
   const closeUserDetails = () => {
     setSelectedUser(null);
+    setDocumentPreviewUrl("");
+  };
+
+  const openDocumentPreview = async () => {
+    if (!selectedUser?.id) return;
+    setIsLoadingDocument(true);
+    try {
+      const response = await api.get(`/api/admin/users/${selectedUser.id}/document`, {
+        responseType: "blob",
+      });
+      setDocumentPreviewUrl(URL.createObjectURL(response.data));
+    } catch (err) {
+      pushToast("error", err?.response?.data?.message || "Unable to open this document.");
+    } finally {
+      setIsLoadingDocument(false);
+    }
   };
 
   const pushToast = (type, message) => {
@@ -278,6 +307,24 @@ export default function AdminDashboard() {
     }
 
     handleAction(userId, action, userEmail);
+  };
+
+  const resetDemoWorkspace = async () => {
+    const confirmed = window.confirm("Clear all user accounts, uploaded demo documents, OTPs, and audit history? The admin account will stay available.");
+    if (!confirmed || isResettingDemo) return;
+    setIsResettingDemo(true);
+    try {
+      await api.delete("/api/admin/demo-data");
+      setUsers([]);
+      setAuditLogs([]);
+      setSelectedUser(null);
+      setDocumentPreviewUrl("");
+      pushToast("success", "Demo workspace cleared. Visitors can start again.");
+    } catch (resetError) {
+      pushToast("error", resetError?.response?.data?.message || "Unable to reset the demo workspace.");
+    } finally {
+      setIsResettingDemo(false);
+    }
   };
 
   useEffect(() => {
@@ -399,6 +446,16 @@ export default function AdminDashboard() {
           <h1 className="text-lg font-semibold text-[#F4F4F5] tracking-tight">Admin Console</h1>
 
           <div className="flex items-center gap-4">
+            {import.meta.env.VITE_DEMO_MODE === "true" && (
+              <button
+                type="button"
+                onClick={resetDemoWorkspace}
+                disabled={isResettingDemo}
+                className="inline-flex rounded-lg border border-amber-400/20 bg-amber-400/[0.06] px-2 py-2 text-[10px] font-medium text-amber-200 transition hover:bg-amber-400/[0.12] disabled:opacity-50 sm:px-3 sm:text-[11px]"
+              >
+                {isResettingDemo ? "Resetting…" : "Reset demo data"}
+              </button>
+            )}
             <div className="text-right leading-tight">
               <p className="text-xs font-semibold text-[#F4F4F5]">{adminIdentity.name}</p>
               <p className="text-[11px] text-[#71717A] max-w-[160px] truncate">{adminIdentity.email}</p>
@@ -704,25 +761,24 @@ export default function AdminDashboard() {
                   </div>
 
                   {selectedUserDocument ? (
-                    selectedUserDocument.startsWith("http://") ||
-                    selectedUserDocument.startsWith("https://") ||
-                    selectedUserDocument.startsWith("/") ? (
-                      <a
-                        href={selectedUserDocument}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] text-xs font-medium text-[#F4F4F5] hover:bg-zinc-700 transition"
-                      >
-                        <span>Open document preview</span>
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    ) : (
-                      <p className="text-xs font-mono text-[#A1A1AA] bg-[#111113] p-2 rounded border border-[#27272A] truncate">
-                        {selectedUserDocument}
-                      </p>
-                    )
+                    <button
+                      type="button"
+                      onClick={openDocumentPreview}
+                      disabled={isLoadingDocument}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] text-xs font-medium text-[#F4F4F5] hover:bg-zinc-700 transition disabled:opacity-60"
+                    >
+                      <span>{isLoadingDocument ? "Loading document…" : "Open document preview"}</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </button>
                   ) : (
                     <p className="text-xs text-[#71717A] italic">No document file attached</p>
+                  )}
+                  {documentPreviewUrl && (
+                    <iframe
+                      title={`Identity document for ${selectedUser.name || "applicant"}`}
+                      src={documentPreviewUrl}
+                      className="h-72 w-full rounded-lg border border-[#27272A] bg-white"
+                    />
                   )}
                 </div>
               </div>
