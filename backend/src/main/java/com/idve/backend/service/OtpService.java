@@ -5,9 +5,12 @@ import com.idve.backend.entity.OtpVerification;
 import com.idve.backend.repository.OtpVerificationRepository;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.Duration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.SimpleMailMessage;
@@ -24,6 +27,16 @@ public class OtpService {
     private final SecureRandom random = new SecureRandom();
     private final OtpVerificationRepository otpVerificationRepository;
     private final JavaMailSender mailSender;
+    private final StringRedisTemplate redisTemplate;
+
+    @Value("${app.redis.enabled:false}")
+    private boolean redisEnabled;
+
+    @Value("${app.mail.resend-api-key:}")
+    private String resendApiKey;
+
+    @Value("${app.mail.from:}")
+    private String configuredMailFrom;
 
     @Value("${app.otp.dev-fallback-enabled:false}")
     private boolean devFallbackEnabled;
@@ -31,9 +44,19 @@ public class OtpService {
     @Value("${spring.mail.username:}")
     private String mailFrom;
 
+    @Autowired
+    public OtpService(ObjectProvider<JavaMailSender> mailSenderProvider,
+                      ObjectProvider<StringRedisTemplate> redisTemplateProvider,
+                      OtpVerificationRepository otpVerificationRepository) {
+        this.mailSender = mailSenderProvider.getIfAvailable();
+        this.redisTemplate = redisTemplateProvider.getIfAvailable();
+        this.otpVerificationRepository = otpVerificationRepository;
+    }
+
     public OtpService(ObjectProvider<JavaMailSender> mailSenderProvider,
                       OtpVerificationRepository otpVerificationRepository) {
         this.mailSender = mailSenderProvider.getIfAvailable();
+        this.redisTemplate = null;
         this.otpVerificationRepository = otpVerificationRepository;
     }
 
@@ -65,6 +88,11 @@ public class OtpService {
                 throw ex;
             }
             log.warn("OTP email failed, using dev fallback for {}", normalizedEmail);
+        }
+
+        if (redisEnabled && redisTemplate != null) {
+            redisTemplate.opsForValue().set(redisKey(normalizedEmail, purpose), otp, Duration.ofSeconds(OTP_EXPIRY_SECONDS));
+            return sent ? null : otp;
         }
 
         Instant now = Instant.now();
@@ -109,6 +137,19 @@ public class OtpService {
     @Transactional
     public void verifyOtp(String email, String otp, String purpose) {
         String normalizedEmail = normalizeEmail(email);
+        if (redisEnabled && redisTemplate != null) {
+            String key = redisKey(normalizedEmail, purpose);
+            String storedOtp = redisTemplate.opsForValue().get(key);
+            if (storedOtp == null) {
+                throw new BadRequestException("OTP not found. Please request a new OTP.");
+            }
+            if (!storedOtp.equals(otp)) {
+                throw new BadRequestException("OTP is incorrect.");
+            }
+            redisTemplate.delete(key);
+            return;
+        }
+
         OtpVerification entry = otpVerificationRepository.findByEmailAndPurpose(normalizedEmail, purpose)
             .orElseGet(() -> purpose.equals(REGISTRATION_PURPOSE)
                 ? otpVerificationRepository.findByEmail(normalizedEmail).orElse(null)
@@ -143,15 +184,24 @@ public class OtpService {
         return email.trim().toLowerCase();
     }
 
+    private String redisKey(String email, String purpose) {
+        return "idve:otp:" + purpose + ":" + email;
+    }
+
     private void sendEmail(String email, String otp) {
+        if (!resendApiKey.isBlank()) {
+            sendWithResend(email, otp);
+            return;
+        }
         if (mailSender == null) {
             throw new BadRequestException("Email service is not configured. OTP cannot be sent.");
         }
 
         try {
             SimpleMailMessage msg = new SimpleMailMessage();
-            if (mailFrom != null && !mailFrom.isBlank()) {
-                msg.setFrom(mailFrom);
+            String from = !configuredMailFrom.isBlank() ? configuredMailFrom : mailFrom;
+            if (from != null && !from.isBlank()) {
+                msg.setFrom(from);
             }
             msg.setTo(email);
             msg.setSubject("Your IDVE verification code");
@@ -160,6 +210,30 @@ public class OtpService {
         } catch (Exception ex) {
             log.error("Unable to send OTP email to {}", email, ex);
             throw new BadRequestException("Unable to send OTP email. Please verify SMTP settings.");
+        }
+    }
+
+    private void sendWithResend(String email, String otp) {
+        if (configuredMailFrom.isBlank()) {
+            throw new BadRequestException("Email sender is not configured. Set MAIL_FROM.");
+        }
+        try {
+            org.springframework.web.client.RestClient.create("https://api.resend.com")
+                .post()
+                .uri("/emails")
+                .header("Authorization", "Bearer " + resendApiKey)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(java.util.Map.of(
+                    "from", configuredMailFrom,
+                    "to", java.util.List.of(email),
+                    "subject", "Your IDVE verification code",
+                    "text", "Your verification code is: " + otp + "\nThis code expires in 5 minutes."
+                ))
+                .retrieve()
+                .toBodilessEntity();
+        } catch (Exception ex) {
+            log.error("Unable to send OTP email to {}", email, ex);
+            throw new BadRequestException("Unable to send OTP email. Please verify Resend settings.");
         }
     }
 }

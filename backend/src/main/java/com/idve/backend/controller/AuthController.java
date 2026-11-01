@@ -86,6 +86,6 @@ public class AuthController {
     }
 
     private boolean isConfigured(String value, String placeholder) {
-        return value != null && !value.isBlank() && !placeholder.equals(value);
+        return value != null && !value.isBlank() && !placeholder.equals(value) && !value.startsWith("disabled-");
     }
 }

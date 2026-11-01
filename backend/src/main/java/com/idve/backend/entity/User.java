@@ -33,6 +33,7 @@ public class User {
     @Column(name = "document_path")
     private String documentPath;
 
+
     public Long getId() {
         return id;
     }
@@ -88,4 +89,5 @@ public class User {
     public void setDocumentPath(String documentPath) {
         this.documentPath = documentPath;
     }
+
 }
