@@ -140,6 +140,18 @@ export default function Dashboard() {
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0] || null;
+    if (file && !["application/pdf", "image/png", "image/jpeg"].includes(file.type)) {
+      setSelectedFile(null);
+      setUploadError("Choose a PDF, PNG, or JPEG document.");
+      event.target.value = "";
+      return;
+    }
+    if (file && file.size > 5 * 1024 * 1024) {
+      setSelectedFile(null);
+      setUploadError("The file must be 5 MB or smaller.");
+      event.target.value = "";
+      return;
+    }
     setSelectedFile(file);
     setUploadMessage("");
     setUploadError("");
@@ -498,6 +510,7 @@ export default function Dashboard() {
                   <input
                     id="identity-document-upload"
                     type="file"
+                    accept="application/pdf,image/png,image/jpeg"
                     onChange={handleFileChange}
                     disabled={isBusy}
                     className="sr-only"
@@ -510,7 +523,7 @@ export default function Dashboard() {
                     <p className="text-sm font-medium text-[#F4F4F5]">
                       Click to browse or drag and drop
                     </p>
-                    <p className="text-xs text-[#71717A]">Supported files: PDF, JPG, PNG (max 10MB)</p>
+                    <p className="text-xs text-[#71717A]">PDF, JPG, or PNG · max 5 MB. Use a synthetic demo document.</p>
                   </div>
                 </label>
 

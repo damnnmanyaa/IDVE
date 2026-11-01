@@ -1,177 +1,105 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Shield, Upload as UploadIcon, FileText, Image, Trash2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, FileCheck2, FileText, Image, ShieldCheck, Upload as UploadIcon, X } from "lucide-react";
+import api from "../services/api";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_TYPES = ["application/pdf", "image/png", "image/jpeg"];
+
+const formatSize = (bytes) => {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 export default function Upload() {
-  const [files, setFiles] = useState([]);
+  const navigate = useNavigate();
+  const inputRef = useRef(null);
+  const [file, setFile] = useState(null);
+  const [error, setError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFiles = (selectedFiles) => {
-    const fileArray = Array.from(selectedFiles).map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      progress: 0,
-    }));
-
-    fileArray.forEach((f) => simulateProgress(f));
-
-    setFiles((prev) => [...prev, ...fileArray]);
-  };
-
-  const simulateProgress = (fileObj) => {
-    let progress = 0;
-
-    const interval = setInterval(() => {
-      progress += 10;
-
-      setFiles((prev) =>
-        prev.map((f) =>
-          f.file.name === fileObj.file.name
-            ? { ...f, progress }
-            : f
-        )
-      );
-
-      if (progress >= 100) clearInterval(interval);
-    }, 150);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
-  };
-
-  const handleDelete = (index) => {
-    setFiles(files.filter((_, i) => i !== index));
-  };
-
-  const renderFileIcon = (name) => {
-    if (name.match(/\.(jpg|jpeg|png)$/i)) {
-      return <Image className="h-4 w-4 text-[#A1A1AA] shrink-0" />;
+  const selectFile = (candidate) => {
+    if (!candidate) return;
+    setError("");
+    if (!ACCEPTED_TYPES.includes(candidate.type)) {
+      setFile(null);
+      setError("Choose a PDF, PNG, or JPEG document.");
+      return;
     }
-    return <FileText className="h-4 w-4 text-[#A1A1AA] shrink-0" />;
+    if (candidate.size > MAX_FILE_SIZE) {
+      setFile(null);
+      setError("The file must be 5 MB or smaller.");
+      return;
+    }
+    setFile(candidate);
+  };
+
+  const handleUpload = async () => {
+    if (!file || isUploading) return;
+    setIsUploading(true);
+    setError("");
+    const body = new FormData();
+    body.append("file", file);
+    try {
+      await api.post("/api/user/upload-document", body);
+      navigate("/dashboard", { replace: true, state: { uploadComplete: true } });
+    } catch (uploadError) {
+      setError(uploadError?.response?.data?.message || "Upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-5xl space-y-6">
-        
-        {/* Header Navigation */}
-        <div className="flex items-center justify-between border-b border-[#27272A] pb-4">
+    <main className="min-h-screen bg-[#080b10] px-4 py-6 text-[#edf3f8] sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-3xl">
+        <header className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="p-2 rounded-lg bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-[#F4F4F5] transition">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-[#F4F4F5]">Documents Workspace</h1>
-              <p className="text-xs text-[#A1A1AA]">Upload and preview identity artifacts for verification.</p>
-            </div>
+            <Link to="/dashboard" aria-label="Back to dashboard" className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-300 transition hover:bg-white/[0.08]"><ArrowLeft size={16} /></Link>
+            <div><h1 className="text-lg font-semibold tracking-tight">Submit a document</h1><p className="mt-0.5 text-xs text-slate-400">Your private applicant workspace</p></div>
+          </div>
+          <span className="flex items-center gap-2 text-xs font-bold tracking-tight"><span className="grid h-8 w-8 place-items-center rounded-lg border border-cyan-300/20 bg-cyan-300/10 text-cyan-200"><ShieldCheck size={17} /></span>IDVE</span>
+        </header>
+
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#0e131a] shadow-2xl shadow-black/30">
+          <div className="border-b border-white/10 p-6 sm:p-8">
+            <p className="text-[10px] font-bold tracking-[0.16em] text-cyan-200/80">IDENTITY REVIEW / DOCUMENT SUBMISSION</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">Add your verification document</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">An administrator will review your submission and update its status in your dashboard.</p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-[#F4F4F5] text-[#09090B] flex items-center justify-center font-bold">
-              <Shield className="h-4 w-4 stroke-[2.5]" />
-            </div>
-            <span className="text-sm font-bold tracking-tight text-[#F4F4F5]">IDVE</span>
-          </div>
-        </div>
-
-        {/* Upload Grid */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-
-          {/* Drag & Drop Card */}
-          <div
-            onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-            className="rounded-xl border border-dashed border-[#27272A] bg-[#111113] hover:bg-[#151515] p-8 text-center transition flex flex-col items-center justify-center min-h-[320px] space-y-4"
-          >
-            <div className="h-12 w-12 rounded-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] flex items-center justify-center">
-              <UploadIcon className="h-6 w-6 text-[#A1A1AA]" />
+          <div className="p-6 sm:p-8">
+            <div
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => { event.preventDefault(); selectFile(event.dataTransfer.files?.[0]); }}
+              className="rounded-xl border border-dashed border-slate-600/70 bg-slate-900/30 px-5 py-10 text-center transition hover:border-cyan-300/50 hover:bg-cyan-300/[0.03] sm:px-10"
+            >
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-cyan-300/15 bg-cyan-300/[0.07] text-cyan-200"><UploadIcon size={21} /></div>
+              <h3 className="mt-4 text-sm font-semibold">Drop a file here to get started</h3>
+              <p className="mt-1 text-xs text-slate-400">PDF, PNG, or JPEG · up to 5 MB</p>
+              <button type="button" onClick={() => inputRef.current?.click()} className="mt-5 rounded-lg border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-slate-100 transition hover:bg-white/10">Browse files</button>
+              <input ref={inputRef} type="file" accept="application/pdf,image/png,image/jpeg" className="sr-only" onChange={(event) => selectFile(event.target.files?.[0])} />
             </div>
 
-            <div>
-              <p className="text-base font-semibold text-[#F4F4F5]">
-                Drag and drop files to upload
-              </p>
-              <p className="text-xs text-[#71717A] mt-1">or click browse below</p>
-            </div>
-
-            <label className="bg-[#F4F4F5] text-[#09090B] font-semibold py-2 px-5 rounded-lg text-xs hover:bg-white active:bg-zinc-200 transition cursor-pointer shadow-md inline-block">
-              Browse Files
-              <input
-                type="file"
-                multiple
-                className="hidden"
-                onChange={(e) => handleFiles(e.target.files)}
-              />
-            </label>
-
-            <p className="text-xs text-[#71717A]">
-              Supported files: JPG, PNG, PDF
-            </p>
-          </div>
-
-          {/* File List Card */}
-          <div className="rounded-xl border border-[#27272A] bg-[#111113] p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
-              <h2 className="text-sm font-semibold tracking-tight text-[#F4F4F5]">
-                Uploaded Artifacts
-              </h2>
-              <span className="text-xs text-[#71717A]">{files.length} items</span>
-            </div>
-
-            {files.length === 0 ? (
-              <div className="py-12 text-center text-xs text-[#71717A]">
-                No files uploaded yet.
+            {file && (
+              <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-cyan-300/10 text-cyan-100">{file.type === "application/pdf" ? <FileText size={18} /> : <Image size={18} />}</span>
+                <span className="min-w-0 flex-1"><strong className="block truncate text-xs font-semibold">{file.name}</strong><small className="mt-1 block text-[10px] text-slate-400">{formatSize(file.size)} · Ready to upload</small></span>
+                <button type="button" aria-label="Remove selected file" onClick={() => { setFile(null); if (inputRef.current) inputRef.current.value = ""; }} className="grid h-8 w-8 place-items-center rounded-md text-slate-400 hover:bg-white/10 hover:text-white"><X size={15} /></button>
               </div>
-            ) : (
-              <ul className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
-                {files.map((f, index) => (
-                  <li
-                    key={index}
-                    className="rounded-lg border border-[#27272A] bg-[#18181B] p-3 space-y-2"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 min-w-0">
-                        {renderFileIcon(f.file.name)}
-                        <span className="truncate text-xs font-medium text-[#F4F4F5]" title={f.file.name}>
-                          {f.file.name}
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => handleDelete(index)}
-                        className="p-1 rounded bg-[#27272A] text-[#71717A] hover:text-rose-400 transition shrink-0"
-                        title="Delete file"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Preview Image if image file */}
-                    {f.file.type.startsWith("image") && (
-                      <img
-                        src={f.preview}
-                        alt="preview"
-                        className="w-full h-28 object-cover rounded border border-[#27272A]"
-                      />
-                    )}
-
-                    {/* Progress Bar */}
-                    <div className="w-full bg-[#27272A] h-1.5 rounded-full overflow-hidden">
-                      <div
-                        className="bg-[#F4F4F5] h-full transition-all duration-200"
-                        style={{ width: `${f.progress}%` }}
-                      ></div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
             )}
+
+            {error && <p role="alert" className="mt-4 rounded-lg border border-rose-400/20 bg-rose-400/[0.07] px-3 py-2.5 text-xs text-rose-200">{error}</p>}
+
+            <div className="mt-6 flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="flex items-center gap-2 text-[10px] leading-5 text-slate-500"><FileCheck2 size={14} className="shrink-0" />Demo only: use synthetic documents, never real identity records.</p>
+              <button type="button" onClick={handleUpload} disabled={!file || isUploading} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-cyan-100 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50">
+                {isUploading ? "Uploading…" : "Submit for review"}
+              </button>
+            </div>
           </div>
-
-        </div>
-
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

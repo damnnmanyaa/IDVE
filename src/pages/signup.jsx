@@ -18,7 +18,6 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("USER");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [oauthReady, setOauthReady] = useState({ google: false, github: false });
   const API_BASE = API_BASE_URL;
@@ -28,7 +27,6 @@ export default function Signup() {
       setName("");
       setEmail("");
       setPassword("");
-      setRole("USER");
       setShowPassword(false);
     };
 
@@ -100,7 +98,7 @@ export default function Signup() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, role }),
+        body: JSON.stringify({ email }),
       });
 
       if (res.ok) {
@@ -109,7 +107,7 @@ export default function Signup() {
           name,
           email,
           password,
-          role,
+          role: "USER",
           devOtp: data?.otp || "",
           infoMessage: data?.message || "",
         };
@@ -258,37 +256,6 @@ export default function Signup() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#F4F4F5] transition p-1"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Role Toggle Selector */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">
-                Register Role
-              </label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-[#18181B] rounded-lg border border-[#27272A]">
-                <button
-                  type="button"
-                  onClick={() => setRole("USER")}
-                  className={`py-2 text-xs font-semibold rounded-md transition ${
-                    role === "USER"
-                      ? "bg-[#27272A] text-[#F4F4F5] shadow-sm"
-                      : "text-[#71717A] hover:text-[#A1A1AA]"
-                  }`}
-                >
-                  USER
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("ADMIN")}
-                  className={`py-2 text-xs font-semibold rounded-md transition ${
-                    role === "ADMIN"
-                      ? "bg-[#27272A] text-[#F4F4F5] shadow-sm"
-                      : "text-[#71717A] hover:text-[#A1A1AA]"
-                  }`}
-                >
-                  ADMIN
                 </button>
               </div>
             </div>
