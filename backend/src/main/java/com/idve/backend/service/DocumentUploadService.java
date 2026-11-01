@@ -1,17 +1,12 @@
 package com.idve.backend.service;
 
 import com.idve.backend.entity.User;
+import com.idve.backend.entity.UserDocument;
 import com.idve.backend.exception.BadRequestException;
+import com.idve.backend.repository.UserDocumentRepository;
 import com.idve.backend.repository.UserRepository;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
-import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,14 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class DocumentUploadService {
 
-    private final Path uploadRoot;
-
+    public static final long MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
     private final UserRepository userRepository;
+    private final UserDocumentRepository userDocumentRepository;
 
-    public DocumentUploadService(@Value("${app.uploads.path:backend/uploads}") String uploadsPath,
-                                 UserRepository userRepository) {
+    public DocumentUploadService(UserRepository userRepository, UserDocumentRepository userDocumentRepository) {
         this.userRepository = userRepository;
-        this.uploadRoot = Paths.get(uploadsPath).toAbsolutePath().normalize();
+        this.userDocumentRepository = userDocumentRepository;
     }
 
     @Transactional
@@ -34,47 +28,65 @@ public class DocumentUploadService {
         if (file == null || file.isEmpty()) {
             throw new BadRequestException("Please choose a file to upload.");
         }
+        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
+            throw new BadRequestException("The file must be 5 MB or smaller.");
+        }
 
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new BadRequestException("User not found"));
 
-        String extension = extractExtension(file.getOriginalFilename());
-        String uniqueName = UUID.randomUUID() + extension;
-        Path destination = uploadRoot.resolve(uniqueName).normalize();
-
-        if (!destination.startsWith(uploadRoot)) {
-            throw new BadRequestException("Invalid upload path");
-        }
-
         try {
-            Files.createDirectories(uploadRoot);
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
+            byte[] content = file.getBytes();
+            String contentType = detectContentType(content);
+            String originalName = Optional.ofNullable(file.getOriginalFilename()).orElse("document");
+            String documentName = originalName.replace('\\', '/');
+            documentName = documentName.substring(documentName.lastIndexOf('/') + 1)
+                .replaceAll("[^A-Za-z0-9._-]", "_");
+            if (documentName.isBlank() || documentName.length() > 120) {
+                documentName = "identity-document";
             }
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to store uploaded file", ex);
-        }
 
-        // store a repo-root-relative path for the database so frontend can fetch it when served by backend
-        String relativePath = uploadRoot.getFileName().toString() + "/" + uniqueName;
-        user.setDocumentPath(relativePath);
-        user.setVerificationStatus("PENDING");
-        return userRepository.save(user);
+            user.setDocumentPath(documentName);
+            user.setVerificationStatus("PENDING");
+            User savedUser = userRepository.save(user);
+            UserDocument document = userDocumentRepository.findByUserId(savedUser.getId()).orElseGet(UserDocument::new);
+            document.setUserId(savedUser.getId());
+            document.setFileName(documentName);
+            document.setContentType(contentType);
+            document.setContent(content);
+            userDocumentRepository.save(document);
+            return savedUser;
+        } catch (IOException ex) {
+            throw new BadRequestException("The uploaded file could not be read.");
+        }
     }
 
-    private String extractExtension(String originalFilename) {
-        String cleanedName = Optional.ofNullable(originalFilename).orElse("");
-        int dotIndex = cleanedName.lastIndexOf('.');
-
-        if (dotIndex < 0 || dotIndex == cleanedName.length() - 1) {
-            return "";
+    private String detectContentType(byte[] content) {
+        if (content.length >= 5
+            && content[0] == '%'
+            && content[1] == 'P'
+            && content[2] == 'D'
+            && content[3] == 'F'
+            && content[4] == '-') {
+            return "application/pdf";
         }
-
-        String extension = cleanedName.substring(dotIndex).replaceAll("[^A-Za-z0-9.]", "");
-        if (extension.length() > 12) {
-            return extension.substring(0, 12);
+        if (content.length >= 8
+            && (content[0] & 0xff) == 0x89
+            && content[1] == 'P'
+            && content[2] == 'N'
+            && content[3] == 'G'
+            && content[4] == 0x0d
+            && content[5] == 0x0a
+            && content[6] == 0x1a
+            && content[7] == 0x0a) {
+            return "image/png";
         }
-
-        return extension.toLowerCase();
+        if (content.length >= 3
+            && (content[0] & 0xff) == 0xff
+            && (content[1] & 0xff) == 0xd8
+            && (content[2] & 0xff) == 0xff) {
+            return "image/jpeg";
+        }
+        throw new BadRequestException("Upload a PDF, PNG, or JPEG document.");
     }
 }

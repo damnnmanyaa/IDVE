@@ -54,7 +54,8 @@ public class AuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(normalizeRole(request.getRole()));
+        // Public registration must never be allowed to assign privileged roles.
+        user.setRole("USER");
         user.setVerificationStatus("PENDING");
         User saved = userRepository.save(user);
 

@@ -20,13 +20,16 @@ Backend starts on `http://localhost:8080`.
 ## Environment Variables
 Create a local `.env` file in `backend` (already gitignored) and set:
 
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` (PostgreSQL connection)
-- `APP_UPLOADS_PATH` (optional, defaults to `backend/uploads`)
+- `DATABASE_URL`, `DB_USER`, `DB_PASSWORD` (PostgreSQL connection; use `sslmode=require` for Neon)
+- `REDIS_URL`, `REDIS_ENABLED` (Redis URL and switch for OTP TTLs and authentication rate limits)
 - `APP_JWT_SECRET` (required, use a long random value)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
 - `OAUTH2_REDIRECT_URI` (default: `http://localhost:5173/login`)
-- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`
+- `RESEND_API_KEY`, `MAIL_FROM` (Resend email API)
+- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` (optional SMTP fallback)
+- `DEMO_ADMIN_EMAIL`, `DEMO_ADMIN_PASSWORD` (seed the public demo administrator)
+- `DEMO_RESET_ENABLED` (enable the administrator's demo reset action)
 
 ## Auth APIs
 - `POST /api/auth/register`
@@ -79,7 +82,7 @@ Tests use H2 in-memory (test-scoped) and run automatically with `mvn test`.
 ## Security notes
 - Passwords are hashed with BCrypt, never stored in plain text.
 - JWT secret, DB credentials, and OAuth/mail credentials are all pulled from environment variables, nothing sensitive is committed.
-- Uploaded documents are stored outside the repo path and the upload service checks the destination path so a request can't escape the configured uploads folder.
+- Uploaded documents are stored as small bytea records in PostgreSQL and can only be previewed through an administrator-protected endpoint.
 - OTPs (registration and password reset) expire after a few minutes and are single-use.
 
 ## Tests
@@ -90,5 +93,5 @@ mvn test
 ```
 
 ## Known limitations
-- Password reset currently generates and verifies the OTP correctly, but the final "set new password" step is disabled in the UI while I finish testing it end to end.
-- No rate limiting yet on login/OTP endpoints.
+- OAuth and email sending require provider credentials; no credentials are committed.
+- Free hosting may sleep while idle, and the demo stores only synthetic user data and documents.

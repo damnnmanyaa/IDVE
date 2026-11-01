@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/user")
@@ -52,6 +53,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/upload-document", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Map<String, String>> uploadDocument(@RequestParam("file") MultipartFile file,
                                                               Principal principal) {
         if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
