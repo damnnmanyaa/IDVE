@@ -342,7 +342,7 @@ Free-plan quotas and terms can change. This deployment is for a resume demo, not
    - `RESEND_API_KEY` and `MAIL_FROM`: the Resend key and verified sender.
    - `CORS_ALLOWED_ORIGINS`: your Vercel origin, for example `https://idve-demo.vercel.app`.
    - `DEMO_ADMIN_EMAIL` and `DEMO_ADMIN_PASSWORD`: the demo administrator credentials. The password must be at least 12 characters.
-   - `OAUTH2_REDIRECT_URI`: your Vercel URL followed by `/login`.
+   - `OAUTH2_REDIRECT_URI`: your Vercel URL followed by `/login`. This is the app's destination after the API finishes OAuth; it is not the provider callback URL.
    - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET`: credentials from each OAuth provider. If not configured, those sign-in buttons stay disabled.
 5. Wait for the backend health check at `/api/health` to pass. The first request after the service has slept may take about a minute.
 
@@ -357,7 +357,14 @@ The demo administrator is created or refreshed at backend startup from its envir
 3. Set `VITE_DEMO_ADMIN_EMAIL` and `VITE_DEMO_ADMIN_PASSWORD` to the same demo credentials configured on Render.
 4. Set `VITE_DEMO_MODE=true` to show the administrator's reset control.
 5. Deploy, then update Render's `CORS_ALLOWED_ORIGINS` to the deployed Vercel origin. Do not include a trailing slash.
-6. Add the Vercel callback URL to Google and GitHub OAuth settings if using social sign-in. The backend callback URLs are `https://YOUR-RENDER-HOST/login/oauth2/code/google` and `https://YOUR-RENDER-HOST/login/oauth2/code/github`.
+6. If using social sign-in, configure the provider callback to the Render API (not the Vercel site):
+   - Google Authorized redirect URI: `https://YOUR-RENDER-HOST/login/oauth2/code/google`
+   - GitHub Authorization callback URL: `https://YOUR-RENDER-HOST/login/oauth2/code/github`
+   - Render `OAUTH2_REDIRECT_URI`: `https://YOUR-VERCEL-HOST/login` (the frontend destination after OAuth succeeds or fails).
+
+   The provider callback and frontend destination serve different steps. Keep the provider client ID and client secret in Render environment settings. OAuth buttons stay disabled unless both are configured.
+
+If a provider rejects the callback before returning to IDVE, check that its callback URL matches the Render host exactly, including HTTPS and the provider path above. If the flow reaches the API but fails, IDVE returns to the login page with a message; the Render service logs include the OAuth failure type. Never share client secrets, authorization codes, or access tokens.
 
 The `vercel.json` rewrite sends client-side routes such as `/login` and `/admin` back to the Vite app.
 
