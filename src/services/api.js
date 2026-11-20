@@ -1,7 +1,18 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/+$/, "");
+const isDevelopment = import.meta.env.DEV;
+const API_BASE_URL = configuredApiBaseUrl || (isDevelopment ? "http://localhost:8080" : "");
+const API_BASE_CONFIGURED = Boolean(configuredApiBaseUrl) || isDevelopment;
 const TOKEN_KEY = "token";
+
+const apiUrl = (path) => {
+  if (!API_BASE_CONFIGURED) {
+    throw new Error("Backend URL is not configured. Set VITE_API_BASE_URL for this deployment.");
+  }
+
+  return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,6 +20,10 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    if (!API_BASE_CONFIGURED) {
+      return Promise.reject(new Error("Backend URL is not configured. Set VITE_API_BASE_URL for this deployment."));
+    }
+
     const token = localStorage.getItem(TOKEN_KEY);
 
     if (token) {
@@ -42,5 +57,5 @@ api.interceptors.response.use(
   }
 );
 
-export { api, API_BASE_URL };
+export { api, apiUrl, API_BASE_URL, API_BASE_CONFIGURED };
 export default api;

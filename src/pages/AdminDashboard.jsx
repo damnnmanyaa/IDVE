@@ -18,7 +18,6 @@ import {
   UserCheck,
   UserX,
   ShieldAlert,
-  Settings,
   LayoutDashboard,
   User,
   Mail,
@@ -368,7 +367,7 @@ export default function AdminDashboard() {
   const renderStatusBadge = (statusVal) => {
     if (statusVal === "VERIFIED") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
           <CheckCircle2 className="h-3 w-3" />
           VERIFIED
         </span>
@@ -376,14 +375,14 @@ export default function AdminDashboard() {
     }
     if (statusVal === "REJECTED") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
           <XCircle className="h-3 w-3" />
           REJECTED
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
         <Clock className="h-3 w-3" />
         PENDING REVIEW
       </span>
@@ -391,46 +390,42 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] flex">
+    <div className="idve-app min-h-screen bg-slate-50 text-slate-900 flex">
       
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 left-0 bg-[#111113] border-r border-[#27272A] z-30 justify-between p-5">
+      <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 left-0 bg-white border-r border-slate-200 z-30 justify-between p-5">
         <div>
           {/* Brand Header */}
           <div className="flex items-center gap-3 mb-8 px-2">
-            <div className="h-8 w-8 rounded-lg bg-[#F4F4F5] text-[#09090B] flex items-center justify-center font-bold">
+            <div className="h-8 w-8 rounded-lg bg-cyan-800 text-white flex items-center justify-center font-bold">
               <Shield className="h-4 w-4 stroke-[2.5]" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-[#F4F4F5]">IDVE</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#18181B] text-[#A1A1AA] border border-[#27272A] font-mono">SOC ADMIN</span>
+            <span className="text-lg font-bold tracking-tight text-slate-900">IDVE</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-50 text-slate-600 border border-slate-200 font-medium">ADMIN</span>
           </div>
 
           {/* Navigation */}
           <nav className="space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#18181B] text-[#F4F4F5] font-medium text-sm border border-[#27272A]">
-              <LayoutDashboard className="h-4 w-4 text-[#F4F4F5]" />
+            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-cyan-50 text-cyan-900 font-medium text-sm border border-cyan-100">
+              <LayoutDashboard className="h-4 w-4 text-slate-900" />
               <span>Admin Console</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-              <Users className="h-4 w-4 text-[#71717A]" />
+            <button onClick={() => document.getElementById("applicant-queue")?.scrollIntoView({ behavior: "smooth" })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50/50 transition text-sm font-medium">
+              <Users className="h-4 w-4 text-slate-500" />
               <span>User Management</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-              <Activity className="h-4 w-4 text-[#71717A]" />
+            <button onClick={() => document.getElementById("audit-log")?.scrollIntoView({ behavior: "smooth" })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50/50 transition text-sm font-medium">
+              <Activity className="h-4 w-4 text-slate-500" />
               <span>Security Audit Logs</span>
             </button>
           </nav>
         </div>
 
         {/* Sidebar Footer */}
-        <div className="pt-4 border-t border-[#27272A] space-y-1">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-            <Settings className="h-4 w-4 text-[#71717A]" />
-            <span>Settings</span>
-          </button>
+        <div className="pt-4 border-t border-slate-200 space-y-1">
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition text-sm font-medium"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-rose-700 hover:text-rose-800 hover:bg-rose-50 transition text-sm font-medium"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span>Sign Out</span>
@@ -442,8 +437,8 @@ export default function AdminDashboard() {
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         
         {/* Top Header */}
-        <header className="sticky top-0 z-20 bg-[#111113]/90 backdrop-blur border-b border-[#27272A] px-4 py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-[#F4F4F5] tracking-tight">Admin Console</h1>
+        <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
+          <h1 className="text-lg font-semibold text-slate-900 tracking-tight">Admin Console</h1>
 
           <div className="flex items-center gap-4">
             {import.meta.env.VITE_DEMO_MODE === "true" && (
@@ -451,18 +446,18 @@ export default function AdminDashboard() {
                 type="button"
                 onClick={resetDemoWorkspace}
                 disabled={isResettingDemo}
-                className="inline-flex rounded-lg border border-amber-400/20 bg-amber-400/[0.06] px-2 py-2 text-[10px] font-medium text-amber-200 transition hover:bg-amber-400/[0.12] disabled:opacity-50 sm:px-3 sm:text-[11px]"
+                className="inline-flex rounded-lg border border-amber-400/20 bg-amber-400/[0.06] px-2 py-2 text-[10px] font-medium text-amber-800 transition hover:bg-amber-400/[0.12] disabled:opacity-50 sm:px-3 sm:text-[11px]"
               >
                 {isResettingDemo ? "Resetting…" : "Reset demo data"}
               </button>
             )}
             <div className="text-right leading-tight">
-              <p className="text-xs font-semibold text-[#F4F4F5]">{adminIdentity.name}</p>
-              <p className="text-[11px] text-[#71717A] max-w-[160px] truncate">{adminIdentity.email}</p>
+              <p className="text-xs font-semibold text-slate-900">{adminIdentity.name}</p>
+              <p className="text-[11px] text-slate-500 max-w-[160px] truncate">{adminIdentity.email}</p>
             </div>
             <button
               onClick={logout}
-              className="bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-[#F4F4F5] text-xs font-medium px-3 py-1.5 rounded-lg transition"
+              className="bg-slate-50 hover:bg-slate-200 border border-slate-200 text-slate-900 text-xs font-medium px-3 py-1.5 rounded-lg transition"
             >
               Logout
             </button>
@@ -473,12 +468,12 @@ export default function AdminDashboard() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
           
           <div>
-            <h2 className="text-2xl font-bold text-[#F4F4F5] tracking-tight">Identity & Access Review</h2>
-            <p className="text-sm text-[#A1A1AA] mt-1">Review identity verification requests, approve users, and inspect security audit logs.</p>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Identity & Access Review</h2>
+            <p className="text-sm text-slate-600 mt-1">Review identity verification requests, approve users, and inspect security audit logs.</p>
           </div>
 
           {error && (
-            <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/50 text-xs text-[#EF4444] flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
               <ShieldAlert className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -486,64 +481,66 @@ export default function AdminDashboard() {
 
           {/* Metric Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 uppercase tracking-wider">
                 <span>Total Identities</span>
-                <Users className="h-4 w-4 text-[#A1A1AA]" />
+                <Users className="h-4 w-4 text-slate-600" />
               </div>
-              <p className="text-2xl font-bold text-[#F4F4F5]">{stats.total}</p>
-              <p className="text-[11px] text-[#71717A]">Registered accounts</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+              <p className="text-[11px] text-slate-500">Registered accounts</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 uppercase tracking-wider">
                 <span>Pending Review</span>
-                <Clock className="h-4 w-4 text-[#F59E0B]" />
+                <Clock className="h-4 w-4 text-amber-700" />
               </div>
-              <p className="text-2xl font-bold text-[#F59E0B]">{stats.pending}</p>
-              <p className="text-[11px] text-[#71717A]">Awaiting admin decision</p>
+              <p className="text-2xl font-bold text-amber-700">{stats.pending}</p>
+              <p className="text-[11px] text-slate-500">Awaiting admin decision</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 uppercase tracking-wider">
                 <span>Verified Users</span>
-                <UserCheck className="h-4 w-4 text-[#22C55E]" />
+                <UserCheck className="h-4 w-4 text-emerald-700" />
               </div>
-              <p className="text-2xl font-bold text-[#22C55E]">{stats.verified}</p>
-              <p className="text-[11px] text-[#71717A]">Approved access</p>
+              <p className="text-2xl font-bold text-emerald-700">{stats.verified}</p>
+              <p className="text-[11px] text-slate-500">Approved access</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-              <div className="flex items-center justify-between text-xs font-medium text-[#71717A] uppercase tracking-wider">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 uppercase tracking-wider">
                 <span>Rejected Requests</span>
-                <UserX className="h-4 w-4 text-[#EF4444]" />
+                <UserX className="h-4 w-4 text-rose-700" />
               </div>
-              <p className="text-2xl font-bold text-[#EF4444]">{stats.rejected}</p>
-              <p className="text-[11px] text-[#71717A]">Access denied</p>
+              <p className="text-2xl font-bold text-rose-700">{stats.rejected}</p>
+              <p className="text-[11px] text-slate-500">Access denied</p>
             </div>
           </div>
 
           {/* Users Table Card */}
-          <div className="rounded-xl bg-[#111113] border border-[#27272A] overflow-hidden">
+          <div id="applicant-queue" className="rounded-xl bg-white border border-slate-200 overflow-hidden scroll-mt-24">
             
             {/* Search & Filter Toolbar */}
-            <div className="p-4 border-b border-[#27272A] flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="p-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div className="relative flex-1 max-w-md">
                 <input
+                  aria-label="Search applicants by name or email"
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name or email..."
-                  className="w-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3.5 py-2 text-xs pl-9 outline-none focus:border-[#71717A] focus:ring-1 focus:ring-[#71717A]"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-3.5 py-2 text-xs pl-9 outline-none focus:border-cyan-700 focus:ring-1 focus:ring-cyan-700"
                 />
-                <Search className="h-3.5 w-3.5 text-[#71717A] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="h-3.5 w-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
 
               <div className="flex items-center gap-2">
                 <select
+                  aria-label="Filter by role"
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
-                  className="bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#71717A]"
+                  className="bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-3 py-2 text-xs outline-none focus:border-cyan-700"
                 >
                   <option value="ALL">All Roles</option>
                   <option value="USER">USER</option>
@@ -551,9 +548,10 @@ export default function AdminDashboard() {
                 </select>
 
                 <select
+                  aria-label="Filter by verification status"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="bg-[#18181B] border border-[#27272A] text-[#F4F4F5] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#71717A]"
+                  className="bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-3 py-2 text-xs outline-none focus:border-cyan-700"
                 >
                   <option value="ALL">All Statuses</option>
                   <option value="PENDING">PENDING</option>
@@ -566,7 +564,7 @@ export default function AdminDashboard() {
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#151515] text-[#A1A1AA] font-semibold border-b border-[#27272A]">
+                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                   <tr>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Email</th>
@@ -576,12 +574,12 @@ export default function AdminDashboard() {
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#27272A]/60 text-[#F4F4F5]">
+                <tbody className="divide-y divide-slate-200/60 text-slate-900">
                   {isLoading && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-[#71717A]">
+                      <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                         <div className="flex items-center justify-center gap-2">
-                          <span className="h-4 w-4 rounded-full border-2 border-[#27272A] border-t-[#F4F4F5] animate-spin" />
+                          <span className="h-4 w-4 rounded-full border-2 border-slate-200 border-t-[#F4F4F5] animate-spin" />
                           <span>Loading users...</span>
                         </div>
                       </td>
@@ -590,8 +588,8 @@ export default function AdminDashboard() {
 
                   {!isLoading && !hasUsers && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-[#71717A]">
-                        <Users className="h-5 w-5 text-[#71717A] mx-auto mb-1.5" />
+                      <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                        <Users className="h-5 w-5 text-slate-500 mx-auto mb-1.5" />
                         <p>No user accounts registered.</p>
                       </td>
                     </tr>
@@ -599,8 +597,8 @@ export default function AdminDashboard() {
 
                   {!isLoading && hasUsers && !hasFilteredUsers && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-[#71717A]">
-                        <Search className="h-5 w-5 text-[#71717A] mx-auto mb-1.5" />
+                      <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                        <Search className="h-5 w-5 text-slate-500 mx-auto mb-1.5" />
                         <p>No matching users for active filter criteria.</p>
                       </td>
                     </tr>
@@ -617,16 +615,16 @@ export default function AdminDashboard() {
                         <tr
                           key={userItem.id}
                           onClick={() => openUserDetails(userItem)}
-                          className="hover:bg-[#18181B]/60 transition cursor-pointer"
+                          className="hover:bg-slate-50/60 transition cursor-pointer"
                         >
-                          <td className="px-4 py-3.5 font-medium text-[#F4F4F5]">{userItem.name}</td>
-                          <td className="px-4 py-3.5 text-[#A1A1AA]">{userItem.email}</td>
+                          <td className="px-4 py-3.5 font-medium text-slate-900">{userItem.name}</td>
+                          <td className="px-4 py-3.5 text-slate-600">{userItem.email}</td>
                           <td className="px-4 py-3.5">
-                            <span className="px-2 py-0.5 rounded bg-[#18181B] text-[11px] font-semibold text-[#F4F4F5] border border-[#27272A]">
+                            <span className="px-2 py-0.5 rounded bg-slate-50 text-[11px] font-semibold text-slate-900 border border-slate-200">
                               {normalizeRole(userItem.role)}
                             </span>
                           </td>
-                          <td className="px-4 py-3.5 text-[#A1A1AA] max-w-[14rem] truncate">
+                          <td className="px-4 py-3.5 text-slate-600 max-w-[14rem] truncate">
                             {formatDocumentLabel(userItem.documentPath)}
                           </td>
                           <td className="px-4 py-3.5">
@@ -637,17 +635,17 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => confirmAndHandleAction(userItem.id, "approve", userItem.email)}
                                 disabled={isApproveDisabled}
-                                className="px-2.5 py-1 rounded text-xs font-semibold bg-[#F4F4F5] text-[#09090B] hover:bg-white active:bg-zinc-200 disabled:opacity-30 transition flex items-center gap-1 shadow-sm"
+                                className="px-2.5 py-1 rounded text-xs font-semibold bg-cyan-800 text-white hover:bg-cyan-900 active:bg-zinc-200 disabled:opacity-30 transition flex items-center gap-1 shadow-sm"
                               >
-                                <Check className="h-3.5 w-3.5 text-[#22C55E]" />
+                                <Check className="h-3.5 w-3.5 text-emerald-700" />
                                 <span>Approve</span>
                               </button>
                               <button
                                 onClick={() => confirmAndHandleAction(userItem.id, "reject", userItem.email)}
                                 disabled={isRejectDisabled}
-                                className="px-2.5 py-1 rounded text-xs font-semibold bg-[#18181B] text-rose-400 border border-rose-800/50 hover:bg-rose-950/40 disabled:opacity-30 transition flex items-center gap-1"
+                                className="px-2.5 py-1 rounded text-xs font-semibold bg-slate-50 text-rose-700 border border-rose-200 hover:bg-rose-50 disabled:opacity-30 transition flex items-center gap-1"
                               >
-                                <X className="h-3.5 w-3.5 text-[#EF4444]" />
+                                <X className="h-3.5 w-3.5 text-rose-700" />
                                 <span>Reject</span>
                               </button>
                             </div>
@@ -661,53 +659,53 @@ export default function AdminDashboard() {
           </div>
 
           {/* Audit Logs Section */}
-          <div className="p-5 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
+          <div id="audit-log" className="p-5 rounded-xl bg-white border border-slate-200 space-y-4 scroll-mt-24">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold text-[#F4F4F5]">Security Audit Log</h3>
-                <p className="text-xs text-[#A1A1AA] mt-0.5">Real-time system events, authentication requests, and admin actions.</p>
+                <h3 className="text-base font-semibold text-slate-900">Security Audit Log</h3>
+                <p className="text-xs text-slate-600 mt-0.5">Real-time system events, authentication requests, and admin actions.</p>
               </div>
-              <span className="text-xs text-[#71717A]">{auditLogs.length} events logged</span>
+              <span className="text-xs text-slate-500">{auditLogs.length} events logged</span>
             </div>
 
-            <div className="max-h-64 overflow-y-auto rounded-lg border border-[#27272A]">
+            <div className="max-h-64 overflow-y-auto rounded-lg border border-slate-200">
               <table className="w-full text-left text-xs">
-                <thead className="sticky top-0 bg-[#151515] text-[#A1A1AA] font-semibold border-b border-[#27272A]">
+                <thead className="sticky top-0 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                   <tr>
                     <th className="px-4 py-2.5">Action</th>
                     <th className="px-4 py-2.5">User Email</th>
                     <th className="px-4 py-2.5 text-right">Timestamp</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#27272A]/50 text-[#F4F4F5]">
+                <tbody className="divide-y divide-slate-200/50 text-slate-900">
                   {isAuditLoading && (
                     <tr>
-                      <td colSpan={3} className="px-4 py-4 text-center text-[#71717A]">Loading logs...</td>
+                      <td colSpan={3} className="px-4 py-4 text-center text-slate-500">Loading logs...</td>
                     </tr>
                   )}
 
                   {!isAuditLoading && auditLogs.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="px-4 py-4 text-center text-[#71717A]">No audit logs available.</td>
+                      <td colSpan={3} className="px-4 py-4 text-center text-slate-500">No audit logs available.</td>
                     </tr>
                   )}
 
                   {!isAuditLoading &&
                     auditLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-[#18181B]/40 transition">
+                      <tr key={log.id} className="hover:bg-slate-50/40 transition">
                         <td className="px-4 py-2.5">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                             log.action === "LOGIN"
-                              ? "bg-blue-950/50 text-blue-400 border border-blue-800/50"
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
                               : log.action === "OTP"
-                              ? "bg-indigo-950/50 text-indigo-400 border border-indigo-800/50"
-                              : "bg-zinc-800 text-zinc-200 border border-zinc-700"
+                              ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                              : "bg-zinc-100 text-zinc-700 border border-zinc-200"
                           }`}>
                             {log.action}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5 text-[#A1A1AA]">{log.userEmail}</td>
-                        <td className="px-4 py-2.5 text-right text-[#71717A]">{formatTimestamp(log.timestamp)}</td>
+                        <td className="px-4 py-2.5 text-slate-600">{log.userEmail}</td>
+                        <td className="px-4 py-2.5 text-right text-slate-500">{formatTimestamp(log.timestamp)}</td>
                       </tr>
                     ))}
                 </tbody>
@@ -725,39 +723,39 @@ export default function AdminDashboard() {
           onClick={closeUserDetails}
         >
           <div
-            className="w-full max-w-3xl bg-[#111113] rounded-xl border border-[#27272A] shadow-2xl overflow-hidden"
+            className="w-full max-w-3xl bg-white rounded-xl border border-slate-200 shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#27272A] bg-[#151515]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
               <div className="flex items-center gap-2.5">
-                <Shield className="h-5 w-5 text-[#F4F4F5]" />
-                <h3 className="text-base font-semibold text-[#F4F4F5]">Verification Review Interface</h3>
+                <Shield className="h-5 w-5 text-slate-900" />
+                <h3 className="text-base font-semibold text-slate-900">Verification Review Interface</h3>
               </div>
               <button
                 onClick={closeUserDetails}
-                className="p-1.5 rounded-lg bg-[#18181B] text-[#71717A] hover:text-[#F4F4F5] border border-[#27272A] transition"
+                className="p-1.5 rounded-lg bg-slate-50 text-slate-500 hover:text-slate-900 border border-slate-200 transition"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Modal Body: Left/Right Split Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#27272A] p-6 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 p-6 gap-6">
               
               {/* LEFT COLUMN: DOCUMENT */}
               <div className="space-y-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">DOCUMENT</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">DOCUMENT</span>
                 
-                <div className="p-5 rounded-xl bg-[#18181B] border border-[#27272A] space-y-4 text-center">
-                  <div className="h-12 w-12 rounded-full bg-[#27272A] text-[#F4F4F5] flex items-center justify-center mx-auto">
-                    <FileText className="h-6 w-6 text-[#A1A1AA]" />
+                <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4 text-center">
+                  <div className="h-12 w-12 rounded-full bg-slate-200 text-slate-900 flex items-center justify-center mx-auto">
+                    <FileText className="h-6 w-6 text-slate-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[#F4F4F5] break-all">
+                    <p className="text-sm font-semibold text-slate-900 break-all">
                       {formatDocumentLabel(selectedUserDocument)}
                     </p>
-                    <p className="text-xs text-[#71717A] mt-0.5">Uploaded Identity Artifact</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Uploaded Identity Artifact</p>
                   </div>
 
                   {selectedUserDocument ? (
@@ -765,19 +763,19 @@ export default function AdminDashboard() {
                       type="button"
                       onClick={openDocumentPreview}
                       disabled={isLoadingDocument}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] text-xs font-medium text-[#F4F4F5] hover:bg-zinc-700 transition disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 text-xs font-medium text-slate-900 hover:bg-zinc-700 transition disabled:opacity-60"
                     >
                       <span>{isLoadingDocument ? "Loading document…" : "Open document preview"}</span>
                       <ExternalLink className="h-3.5 w-3.5" />
                     </button>
                   ) : (
-                    <p className="text-xs text-[#71717A] italic">No document file attached</p>
+                    <p className="text-xs text-slate-500 italic">No document file attached</p>
                   )}
                   {documentPreviewUrl && (
                     <iframe
                       title={`Identity document for ${selectedUser.name || "applicant"}`}
                       src={documentPreviewUrl}
-                      className="h-72 w-full rounded-lg border border-[#27272A] bg-white"
+                      className="h-72 w-full rounded-lg border border-slate-200 bg-white"
                     />
                   )}
                 </div>
@@ -788,19 +786,19 @@ export default function AdminDashboard() {
                 
                 {/* APPLICANT SECTION */}
                 <div className="space-y-3">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">APPLICANT</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">APPLICANT</span>
                   <div className="space-y-2 text-xs">
-                    <div className="flex items-center justify-between text-[#A1A1AA]">
-                      <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5 text-[#71717A]" /> Name</span>
-                      <span className="font-semibold text-[#F4F4F5]">{selectedUser.name || "-"}</span>
+                    <div className="flex items-center justify-between text-slate-600">
+                      <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5 text-slate-500" /> Name</span>
+                      <span className="font-semibold text-slate-900">{selectedUser.name || "-"}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[#A1A1AA]">
-                      <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-[#71717A]" /> Email</span>
-                      <span className="font-semibold text-[#F4F4F5] max-w-[180px] truncate">{selectedUser.email || "-"}</span>
+                    <div className="flex items-center justify-between text-slate-600">
+                      <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-slate-500" /> Email</span>
+                      <span className="font-semibold text-slate-900 max-w-[180px] truncate">{selectedUser.email || "-"}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[#A1A1AA]">
-                      <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-[#71717A]" /> Role</span>
-                      <span className="px-2 py-0.5 rounded bg-[#18181B] font-semibold text-[#F4F4F5] border border-[#27272A]">
+                    <div className="flex items-center justify-between text-slate-600">
+                      <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-slate-500" /> Role</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-50 font-semibold text-slate-900 border border-slate-200">
                         {normalizeRole(selectedUser.role)}
                       </span>
                     </div>
@@ -808,31 +806,31 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* VERIFICATION STATUS */}
-                <div className="space-y-2 pt-3 border-t border-[#27272A]">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">VERIFICATION STATUS</span>
+                <div className="space-y-2 pt-3 border-t border-slate-200">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">VERIFICATION STATUS</span>
                   <div>
                     {renderStatusBadge(normalizeStatus(selectedUser.verificationStatus))}
                   </div>
                 </div>
 
                 {/* VERIFICATION DECISION BUTTONS */}
-                <div className="space-y-2.5 pt-3 border-t border-[#27272A]">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#71717A] block">VERIFICATION DECISION</span>
+                <div className="space-y-2.5 pt-3 border-t border-slate-200">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">VERIFICATION DECISION</span>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => confirmAndHandleAction(selectedUser.id, "approve", selectedUser.email)}
                       disabled={normalizeStatus(selectedUser.verificationStatus) === "VERIFIED"}
-                      className="w-full bg-[#F4F4F5] text-[#09090B] font-semibold py-2 px-3 rounded-lg hover:bg-white active:bg-zinc-200 disabled:opacity-30 transition flex items-center justify-center gap-1.5 text-xs shadow-md"
+                      className="w-full bg-cyan-800 text-white font-semibold py-2 px-3 rounded-lg hover:bg-cyan-900 active:bg-zinc-200 disabled:opacity-30 transition flex items-center justify-center gap-1.5 text-xs shadow-md"
                     >
-                      <Check className="h-4 w-4 text-[#22C55E]" />
+                      <Check className="h-4 w-4 text-emerald-700" />
                       <span>Approve</span>
                     </button>
                     <button
                       onClick={() => confirmAndHandleAction(selectedUser.id, "reject", selectedUser.email)}
                       disabled={normalizeStatus(selectedUser.verificationStatus) === "REJECTED"}
-                      className="w-full bg-[#18181B] text-rose-400 border border-rose-800/50 hover:bg-rose-950/40 disabled:opacity-30 transition font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs"
+                      className="w-full bg-slate-50 text-rose-700 border border-rose-200 hover:bg-rose-50 disabled:opacity-30 transition font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs"
                     >
-                      <X className="h-4 w-4 text-[#EF4444]" />
+                      <X className="h-4 w-4 text-rose-700" />
                       <span>Reject</span>
                     </button>
                   </div>
@@ -843,10 +841,10 @@ export default function AdminDashboard() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-end px-6 py-3.5 border-t border-[#27272A] bg-[#151515]">
+            <div className="flex justify-end px-6 py-3.5 border-t border-slate-200 bg-slate-50">
               <button
                 onClick={closeUserDetails}
-                className="px-4 py-1.5 rounded-lg bg-[#18181B] text-[#A1A1AA] hover:text-[#F4F4F5] border border-[#27272A] text-xs font-medium transition"
+                className="px-4 py-1.5 rounded-lg bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 text-xs font-medium transition"
               >
                 Close
               </button>
@@ -863,8 +861,8 @@ export default function AdminDashboard() {
               key={toast.id}
               className={`p-3.5 rounded-xl border shadow-xl text-xs font-medium pointer-events-auto flex items-center gap-2.5 ${
                 toast.type === "success"
-                  ? "bg-emerald-950/90 border-emerald-800/60 text-[#22C55E]"
-                  : "bg-rose-950/90 border-rose-800/60 text-[#EF4444]"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  : "bg-rose-50 border-rose-200 text-rose-700"
               }`}
               role="status"
               aria-live="polite"
