@@ -14,6 +14,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
@@ -28,6 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
     private final AuthService authService;
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -49,26 +52,42 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String email = extractEmail(authentication, oauth2User);
 
         if (email == null || email.isBlank()) {
-            String errorUrl = UriComponentsBuilder
-                .fromUriString(frontendRedirectUri)
-                .queryParam("error", "oauth_email_not_found")
-                .build()
-                .toUriString();
-            getRedirectStrategy().sendRedirect(request, response, errorUrl);
+            redirectWithError(request, response, "oauth_email_not_found");
             return;
         }
 
-        String name = extractName(oauth2User, email);
-        String token = authService.loginWithOAuth(email, name);
+        try {
+            String name = extractName(oauth2User, email);
+            String token = authService.loginWithOAuth(email, name);
 
-        String targetUrl = UriComponentsBuilder
+            String targetUrl = UriComponentsBuilder
+                .fromUriString(frontendRedirectUri)
+                .queryParam("token", token)
+                .build()
+                .toUriString();
+
+            clearAuthenticationAttributes(request);
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        } catch (RuntimeException ex) {
+            String provider = authentication instanceof OAuth2AuthenticationToken oauthToken
+                ? oauthToken.getAuthorizedClientRegistrationId()
+                : "unknown";
+            logger.warn("OAuth account sign-in failed for provider {} ({})",
+                provider, ex.getClass().getSimpleName());
+            redirectWithError(request, response, "oauth_login_failed");
+        }
+    }
+
+    private void redirectWithError(HttpServletRequest request,
+                                   HttpServletResponse response,
+                                   String errorCode) throws IOException {
+        String errorUrl = UriComponentsBuilder
             .fromUriString(frontendRedirectUri)
-            .queryParam("token", token)
+            .queryParam("error", errorCode)
             .build()
             .toUriString();
-
         clearAuthenticationAttributes(request);
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        getRedirectStrategy().sendRedirect(request, response, errorUrl);
     }
 
     private String extractEmail(Authentication authentication, OAuth2User oauth2User) {

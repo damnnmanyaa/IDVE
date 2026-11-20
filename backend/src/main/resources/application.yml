@@ -3,6 +3,8 @@ server:
   forward-headers-strategy: framework
 
 spring:
+  config:
+    import: optional:file:./.env[.properties]
   data:
     redis:
       url: ${REDIS_URL:redis://localhost:6379}

@@ -31,8 +31,14 @@ public class AuthController {
     @Value("${spring.security.oauth2.client.registration.google.client-id:}")
     private String googleClientId;
 
+    @Value("${spring.security.oauth2.client.registration.google.client-secret:}")
+    private String googleClientSecret;
+
     @Value("${spring.security.oauth2.client.registration.github.client-id:}")
     private String githubClientId;
+
+    @Value("${spring.security.oauth2.client.registration.github.client-secret:}")
+    private String githubClientSecret;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -77,15 +83,19 @@ public class AuthController {
 
     @GetMapping("/oauth-config")
     public ResponseEntity<Map<String, Boolean>> oauthConfigStatus() {
-        boolean googleConfigured = isConfigured(googleClientId, "replace-with-google-client-id");
-        boolean githubConfigured = isConfigured(githubClientId, "replace-with-github-client-id");
+        boolean googleConfigured = isConfigured(googleClientId) && isConfigured(googleClientSecret);
+        boolean githubConfigured = isConfigured(githubClientId) && isConfigured(githubClientSecret);
         return ResponseEntity.ok(Map.of(
             "google", googleConfigured,
             "github", githubConfigured
         ));
     }
 
-    private boolean isConfigured(String value, String placeholder) {
-        return value != null && !value.isBlank() && !placeholder.equals(value) && !value.startsWith("disabled-");
+    private boolean isConfigured(String value) {
+        return value != null
+            && !value.isBlank()
+            && !value.startsWith("your_")
+            && !value.startsWith("disabled-")
+            && !value.toLowerCase().contains("replace-with");
     }
 }

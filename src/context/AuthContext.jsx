@@ -2,7 +2,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -53,11 +52,25 @@ const decodeToken = (rawToken) => {
   }
 };
 
+const rehydrateStoredToken = () => {
+  const storedToken = localStorage.getItem(TOKEN_KEY);
+  if (!storedToken) return null;
+
+  const decoded = decodeToken(storedToken);
+  if (!decoded) {
+    localStorage.removeItem(TOKEN_KEY);
+    return null;
+  }
+
+  return { rawToken: storedToken, ...decoded };
+};
+
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(null);
-  const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [initialAuth] = useState(rehydrateStoredToken);
+  const [token, setToken] = useState(initialAuth?.rawToken ?? null);
+  const [user, setUser] = useState(initialAuth?.user ?? null);
+  const [role, setRole] = useState(initialAuth?.role ?? null);
+  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(initialAuth));
 
   const applyToken = useCallback((rawToken) => {
     const decoded = decodeToken(rawToken);
@@ -77,16 +90,6 @@ export function AuthProvider({ children }) {
 
     return true;
   }, []);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem(TOKEN_KEY);
-    if (!storedToken) return;
-
-    const isValid = applyToken(storedToken);
-    if (!isValid) {
-      localStorage.removeItem(TOKEN_KEY);
-    }
-  }, [applyToken]);
 
   const login = useCallback(
     (rawToken) => {
@@ -123,6 +126,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- canonical context+hook pairing; fast refresh of this file is not required
 export function useAuth() {
   const context = useContext(AuthContext);
 
