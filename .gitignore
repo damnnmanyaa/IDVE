@@ -12,7 +12,10 @@ dist
 dist-ssr
 backend/target
 backend/uploads
+backend/tools
 *.local
+*.gz
+app.log*
 
 # Editor directories and files
 .vscode/*
@@ -31,6 +34,7 @@ backend/.env
 !.env.example
 !backend/.env.example
 .commandcode/
+taste.md
 
 
 
