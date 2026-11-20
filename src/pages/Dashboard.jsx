@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Clock3,
   XCircle,
-  Settings,
   LogOut,
   Activity,
   FileCheck,
@@ -205,78 +204,74 @@ export default function Dashboard() {
   const renderStatusBadge = (statusVal) => {
     if (statusVal === "VERIFIED") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]"></span>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
           VERIFIED
         </span>
       );
     }
     if (statusVal === "REJECTED") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#EF4444]"></span>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+          <span className="h-1.5 w-1.5 rounded-full bg-rose-600"></span>
           REJECTED
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#F59E0B] animate-pulse"></span>
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-600"></span>
         PENDING REVIEW
       </span>
     );
   };
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-[#F4F4F5] flex">
+    <div className="idve-app min-h-screen bg-slate-50 text-slate-900 flex">
       
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 left-0 bg-[#111113] border-r border-[#27272A] z-30 justify-between p-5">
+      <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 left-0 bg-white border-r border-slate-200 z-30 justify-between p-5">
         <div>
           {/* Brand Header */}
           <div className="flex items-center gap-3 mb-8 px-2">
-            <div className="h-8 w-8 rounded-lg bg-[#F4F4F5] text-[#09090B] flex items-center justify-center font-bold">
+            <div className="h-8 w-8 rounded-lg bg-cyan-800 text-white flex items-center justify-center font-bold">
               <Shield className="h-4 w-4 stroke-[2.5]" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-[#F4F4F5]">IDVE</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#18181B] text-[#A1A1AA] border border-[#27272A] font-mono">IAM</span>
+            <span className="text-lg font-bold tracking-tight text-slate-900">IDVE</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-50 text-slate-600 border border-slate-200 font-medium">APPLICANT</span>
           </div>
 
           {/* Navigation Menu */}
           <nav className="space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#18181B] text-[#F4F4F5] font-medium text-sm border border-[#27272A] shadow-sm">
-              <LayoutDashboard className="h-4 w-4 text-[#F4F4F5]" />
+            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-cyan-50 text-cyan-900 font-medium text-sm border border-cyan-100">
+              <LayoutDashboard className="h-4 w-4 text-slate-900" />
               <span>Overview</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-              <User className="h-4 w-4 text-[#71717A]" />
+            <button onClick={() => document.getElementById("identity-profile")?.scrollIntoView({ behavior: "smooth" })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50/50 transition text-sm font-medium">
+              <User className="h-4 w-4 text-slate-500" />
               <span>Identity Profile</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-              <ShieldCheck className="h-4 w-4 text-[#71717A]" />
+            <button onClick={() => document.getElementById("verification")?.scrollIntoView({ behavior: "smooth" })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50/50 transition text-sm font-medium">
+              <ShieldCheck className="h-4 w-4 text-slate-500" />
               <span>Verification</span>
             </button>
-            <Link to="/upload" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-              <FileSpreadsheet className="h-4 w-4 text-[#71717A]" />
+            <Link to="/upload" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50/50 transition text-sm font-medium">
+              <FileSpreadsheet className="h-4 w-4 text-slate-500" />
               <span>Documents Workspace</span>
             </Link>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-              <Activity className="h-4 w-4 text-[#71717A]" />
+            <button onClick={() => document.getElementById("audit-history")?.scrollIntoView({ behavior: "smooth" })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50/50 transition text-sm font-medium">
+              <Activity className="h-4 w-4 text-slate-500" />
               <span>Audit History</span>
             </button>
           </nav>
         </div>
 
         {/* Sidebar Footer */}
-        <div className="pt-4 border-t border-[#27272A] space-y-1">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-[#18181B]/50 transition text-sm font-medium">
-            <Settings className="h-4 w-4 text-[#71717A]" />
-            <span>Settings</span>
-          </button>
+        <div className="pt-4 border-t border-slate-200 space-y-1">
           <button
             onClick={handleLogout}
             disabled={isBusy}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition text-sm font-medium"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-rose-700 hover:text-rose-800 hover:bg-rose-50 transition text-sm font-medium"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span>Sign Out</span>
@@ -288,34 +283,34 @@ export default function Dashboard() {
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-20 bg-[#111113]/90 backdrop-blur border-b border-[#27272A] px-4 py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
+        <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="lg:hidden p-1.5 rounded-lg border border-[#27272A] bg-[#18181B] text-[#A1A1AA] hover:text-[#F4F4F5]"
+              className="lg:hidden p-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <h1 className="text-lg font-semibold text-[#F4F4F5] tracking-tight">Overview</h1>
+            <h1 className="text-lg font-semibold text-slate-900 tracking-tight">Overview</h1>
           </div>
 
           <div className="flex items-center gap-4">
             {renderStatusBadge(status)}
 
-            <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-[#27272A]">
-              <div className="h-8 w-8 rounded-full bg-[#18181B] border border-[#27272A] flex items-center justify-center text-xs font-semibold text-[#F4F4F5]">
+            <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-slate-200">
+              <div className="h-8 w-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs font-semibold text-slate-900">
                 {userInitials}
               </div>
               <div className="text-left text-xs leading-tight">
-                <p className="font-medium text-[#F4F4F5]">{currentUser?.name || "User"}</p>
-                <p className="text-[#71717A] max-w-[140px] truncate">{currentUser?.email || "-"}</p>
+                <p className="font-medium text-slate-900">{currentUser?.name || "User"}</p>
+                <p className="text-slate-500 max-w-[140px] truncate">{currentUser?.email || "-"}</p>
               </div>
             </div>
 
             <button
               onClick={handleLogout}
               disabled={isBusy}
-              className="p-2 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-[#F4F4F5] border border-[#27272A] transition"
+              className="p-2 rounded-lg bg-slate-50 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border border-slate-200 transition"
               title="Logout"
             >
               <LogOut className="h-4 w-4" />
@@ -325,16 +320,16 @@ export default function Dashboard() {
 
         {/* Mobile Sidebar Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#111113] border-b border-[#27272A] p-4 space-y-2">
-            <div className="flex items-center gap-3 p-2 rounded-lg bg-[#18181B] text-[#F4F4F5] text-sm font-medium">
+          <div className="lg:hidden bg-white border-b border-slate-200 p-4 space-y-2">
+            <div className="flex items-center gap-3 p-2 rounded-lg bg-slate-50 text-slate-900 text-sm font-medium">
               <LayoutDashboard className="h-4 w-4" />
               <span>Overview</span>
             </div>
-            <Link to="/upload" className="flex items-center gap-3 p-2 rounded-lg text-[#A1A1AA] text-sm font-medium">
+            <Link to="/upload" className="flex items-center gap-3 p-2 rounded-lg text-slate-600 text-sm font-medium">
               <FileSpreadsheet className="h-4 w-4" />
               <span>Documents Workspace</span>
             </Link>
-            <button onClick={handleLogout} className="flex items-center gap-3 p-2 rounded-lg text-rose-400 text-sm font-medium w-full text-left">
+            <button onClick={handleLogout} className="flex items-center gap-3 p-2 rounded-lg text-rose-700 text-sm font-medium w-full text-left">
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>
             </button>
@@ -346,18 +341,18 @@ export default function Dashboard() {
           
           {/* Welcome Banner */}
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F4F4F5]">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
               Welcome back, {currentUser?.name || "User"}
             </h2>
-            <p className="text-sm text-[#A1A1AA] mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               Manage your identity, verification status and account security.
             </p>
           </div>
 
           {/* Loading Indicator */}
           {isFetchingUser && (
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] flex items-center gap-3 text-sm text-[#A1A1AA]">
-              <span className="inline-block h-4 w-4 rounded-full border-2 border-[#27272A] border-t-[#F4F4F5] animate-spin" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200 flex items-center gap-3 text-sm text-slate-600">
+              <span className="inline-block h-4 w-4 rounded-full border-2 border-slate-200 border-t-[#F4F4F5] animate-spin" />
               <span>Fetching identity record...</span>
             </div>
           )}
@@ -366,55 +361,55 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             {/* Metric 1: Verification Status */}
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
-              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-slate-500">
                 <span>Identity Status</span>
-                <ShieldCheck className="h-4 w-4 text-[#A1A1AA]" />
+                <ShieldCheck className="h-4 w-4 text-slate-600" />
               </div>
               <div className="pt-1">
                 {renderStatusBadge(status)}
               </div>
-              <p className="text-xs text-[#71717A]">
+              <p className="text-xs text-slate-500">
                 {status === "VERIFIED" ? "Official verification granted" : status === "REJECTED" ? "Verification rejected by admin" : "Under review by admin"}
               </p>
             </div>
 
             {/* Metric 2: Document */}
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
-              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-slate-500">
                 <span>Document State</span>
-                <FileText className="h-4 w-4 text-[#A1A1AA]" />
+                <FileText className="h-4 w-4 text-slate-600" />
               </div>
-              <p className="text-sm font-semibold text-[#F4F4F5] truncate">
+              <p className="text-sm font-semibold text-slate-900 truncate">
                 {selectedFile ? selectedFile.name : "Document Submitted"}
               </p>
-              <p className="text-xs text-[#71717A]">PDF / Image format</p>
+              <p className="text-xs text-slate-500">PDF / Image format</p>
             </div>
 
             {/* Metric 3: Account Email */}
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
-              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-slate-500">
                 <span>Account Identity</span>
-                <User className="h-4 w-4 text-[#A1A1AA]" />
+                <User className="h-4 w-4 text-slate-600" />
               </div>
-              <p className="text-sm font-semibold text-[#F4F4F5] truncate">
+              <p className="text-sm font-semibold text-slate-900 truncate">
                 {currentUser?.email || "-"}
               </p>
-              <p className="text-xs text-[#71717A]">Primary email address</p>
+              <p className="text-xs text-slate-500">Primary email address</p>
             </div>
 
             {/* Metric 4: Access Level */}
-            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-2">
-              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-slate-500">
                 <span>Access Level</span>
-                <Lock className="h-4 w-4 text-[#A1A1AA]" />
+                <Lock className="h-4 w-4 text-slate-600" />
               </div>
               <div className="pt-1">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#18181B] text-xs font-semibold text-[#F4F4F5] border border-[#27272A]">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-50 text-xs font-semibold text-slate-900 border border-slate-200">
                   USER ROLE
                 </span>
               </div>
-              <p className="text-xs text-[#71717A]">Standard privileges</p>
+              <p className="text-xs text-slate-500">Standard privileges</p>
             </div>
 
           </div>
@@ -426,44 +421,44 @@ export default function Dashboard() {
             <div className="lg:col-span-2 space-y-6">
               
               {/* Identity Verification Timeline */}
-              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-5">
+              <div id="identity-profile" className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 space-y-5 scroll-mt-24">
                 <div>
-                  <h3 className="text-base font-semibold text-[#F4F4F5]">Identity verification</h3>
-                  <p className="text-xs text-[#A1A1AA] mt-0.5">Track your verification milestone status.</p>
+                  <h3 className="text-base font-semibold text-slate-900">Identity verification</h3>
+                  <p className="text-xs text-slate-600 mt-0.5">Track your verification milestone status.</p>
                 </div>
 
-                <div className="space-y-4 relative before:absolute before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#27272A]">
+                <div className="space-y-4 relative before:absolute before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
                   
                   {/* Step 1 */}
                   <div className="flex items-start gap-3.5 relative z-10">
-                    <div className="h-7 w-7 rounded-full bg-emerald-950/60 border border-emerald-500/50 text-[#22C55E] flex items-center justify-center shrink-0 text-xs">
+                    <div className="h-7 w-7 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0 text-xs">
                       <CheckCircle2 className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#F4F4F5]">Account Created</p>
-                      <p className="text-xs text-[#71717A]">Registered on IDVE platform</p>
+                      <p className="text-sm font-medium text-slate-900">Account Created</p>
+                      <p className="text-xs text-slate-500">Registered on IDVE platform</p>
                     </div>
                   </div>
 
                   {/* Step 2 */}
                   <div className="flex items-start gap-3.5 relative z-10">
-                    <div className="h-7 w-7 rounded-full bg-emerald-950/60 border border-emerald-500/50 text-[#22C55E] flex items-center justify-center shrink-0 text-xs">
+                    <div className="h-7 w-7 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0 text-xs">
                       <CheckCircle2 className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#F4F4F5]">Email / OTP Verified</p>
-                      <p className="text-xs text-[#71717A]">Two-factor verification completed</p>
+                      <p className="text-sm font-medium text-slate-900">Email / OTP Verified</p>
+                      <p className="text-xs text-slate-500">Two-factor verification completed</p>
                     </div>
                   </div>
 
                   {/* Step 3 */}
                   <div className="flex items-start gap-3.5 relative z-10">
-                    <div className="h-7 w-7 rounded-full bg-[#18181B] border border-[#27272A] text-[#F4F4F5] flex items-center justify-center shrink-0 text-xs">
-                      <FileCheck className="h-4 w-4 text-[#A1A1AA]" />
+                    <div className="h-7 w-7 rounded-full bg-slate-50 border border-slate-200 text-slate-900 flex items-center justify-center shrink-0 text-xs">
+                      <FileCheck className="h-4 w-4 text-slate-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#F4F4F5]">Document Submitted</p>
-                      <p className="text-xs text-[#71717A]">Proof of identity uploaded</p>
+                      <p className="text-sm font-medium text-slate-900">Document Submitted</p>
+                      <p className="text-xs text-slate-500">Proof of identity uploaded</p>
                     </div>
                   </div>
 
@@ -471,16 +466,16 @@ export default function Dashboard() {
                   <div className="flex items-start gap-3.5 relative z-10">
                     <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 text-xs ${
                       status === "VERIFIED"
-                        ? "bg-emerald-950/60 border border-emerald-500/50 text-[#22C55E]"
+                        ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
                         : status === "REJECTED"
-                        ? "bg-rose-950/60 border border-rose-500/50 text-[#EF4444]"
-                        : "bg-amber-950/60 border border-amber-500/50 text-[#F59E0B]"
+                        ? "bg-rose-50 border border-rose-200 text-rose-700"
+                        : "bg-amber-50 border border-amber-200 text-amber-700"
                     }`}>
                       {status === "VERIFIED" ? <CheckCircle2 className="h-4 w-4" /> : status === "REJECTED" ? <XCircle className="h-4 w-4" /> : <Clock3 className="h-4 w-4" />}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#F4F4F5]">Verification Decision</p>
-                      <p className="text-xs text-[#71717A]">
+                      <p className="text-sm font-medium text-slate-900">Verification Decision</p>
+                      <p className="text-xs text-slate-500">
                         {status === "VERIFIED" ? "Identity confirmed" : status === "REJECTED" ? "Verification rejected" : "Pending admin review"}
                       </p>
                     </div>
@@ -490,13 +485,13 @@ export default function Dashboard() {
               </div>
 
               {/* Document Upload Area */}
-              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
+              <div id="verification" className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 space-y-4 scroll-mt-24">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-base font-semibold text-[#F4F4F5]">Identity document</h3>
-                    <p className="text-xs text-[#A1A1AA] mt-0.5">Upload passport, driver's license or official ID.</p>
+                    <h3 className="text-base font-semibold text-slate-900">Identity document</h3>
+                    <p className="text-xs text-slate-600 mt-0.5">Upload passport, driver's license or official ID.</p>
                   </div>
-                  <Link to="/upload" className="text-xs text-[#A1A1AA] hover:text-[#F4F4F5] flex items-center gap-1 transition">
+                  <Link to="/upload" className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 transition">
                     <span>Advanced Workspace</span>
                     <ChevronRight className="h-3.5 w-3.5" />
                   </Link>
@@ -505,7 +500,7 @@ export default function Dashboard() {
                 {/* Dropzone Box */}
                 <label
                   htmlFor="identity-document-upload"
-                  className="group block rounded-xl border border-dashed border-[#27272A] bg-[#18181B] hover:bg-[#1C1C20] hover:border-[#3F3F46] transition p-6 cursor-pointer text-center"
+                  className="group block rounded-xl border border-dashed border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition p-6 cursor-pointer text-center"
                 >
                   <input
                     id="identity-document-upload"
@@ -517,24 +512,24 @@ export default function Dashboard() {
                   />
 
                   <div className="flex flex-col items-center gap-2">
-                    <div className="h-10 w-10 rounded-full bg-[#27272A] text-[#F4F4F5] flex items-center justify-center group-hover:scale-105 transition">
+                    <div className="h-10 w-10 rounded-full bg-slate-200 text-slate-900 flex items-center justify-center group-hover:scale-105 transition">
                       <Upload className="h-5 w-5" />
                     </div>
-                    <p className="text-sm font-medium text-[#F4F4F5]">
+                    <p className="text-sm font-medium text-slate-900">
                       Click to browse or drag and drop
                     </p>
-                    <p className="text-xs text-[#71717A]">PDF, JPG, or PNG · max 5 MB. Use a synthetic demo document.</p>
+                    <p className="text-xs text-slate-500">PDF, JPG, or PNG · max 5 MB. Use a synthetic document.</p>
                   </div>
                 </label>
 
                 {/* Selected File Display */}
                 {selectedFile && (
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-[#18181B] border border-[#27272A] text-xs text-[#F4F4F5]">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900">
                     <div className="flex items-center gap-2 min-w-0">
-                      <FileText className="h-4 w-4 text-[#A1A1AA] shrink-0" />
+                      <FileText className="h-4 w-4 text-slate-600 shrink-0" />
                       <span className="truncate font-medium">{selectedFile.name}</span>
                     </div>
-                    <span className="text-[#71717A] text-[11px]">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                    <span className="text-slate-500 text-[11px]">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
                   </div>
                 )}
 
@@ -542,10 +537,10 @@ export default function Dashboard() {
                 <button
                   onClick={handleUpload}
                   disabled={isBusy || !selectedFile}
-                  className="w-full bg-[#F4F4F5] text-[#09090B] font-semibold py-2.5 px-4 rounded-lg hover:bg-white active:bg-zinc-200 disabled:opacity-40 transition flex items-center justify-center gap-2 text-sm shadow-md"
+                  className="w-full bg-cyan-800 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-cyan-900 active:bg-zinc-200 disabled:opacity-40 transition flex items-center justify-center gap-2 text-sm shadow-md"
                 >
                   {isUploading ? (
-                    <span className="inline-block h-4 w-4 rounded-full border-2 border-[#09090B] border-t-transparent animate-spin" />
+                    <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                   ) : (
                     <Upload className="h-4 w-4" />
                   )}
@@ -554,13 +549,13 @@ export default function Dashboard() {
 
                 {/* Upload Status Banners */}
                 {uploadMessage && (
-                  <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/50 text-xs text-[#22C55E] flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 shrink-0" />
                     <span>{uploadMessage}</span>
                   </div>
                 )}
                 {uploadError && (
-                  <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 text-xs text-[#EF4444] flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4 shrink-0" />
                     <span>{uploadError}</span>
                   </div>
@@ -573,25 +568,25 @@ export default function Dashboard() {
             <div className="space-y-6">
               
               {/* Profile Card */}
-              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
-                <h3 className="text-base font-semibold text-[#F4F4F5]">Profile summary</h3>
+              <div id="audit-history" className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 space-y-4 scroll-mt-24">
+                <h3 className="text-base font-semibold text-slate-900">Profile summary</h3>
                 
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#18181B] border border-[#27272A]">
-                  <div className="h-10 w-10 rounded-full bg-[#27272A] text-[#F4F4F5] flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <div className="h-10 w-10 rounded-full bg-slate-200 text-slate-900 flex items-center justify-center font-bold text-sm shrink-0">
                     {userInitials}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[#F4F4F5] truncate">{currentUser?.name || "User"}</p>
-                    <p className="text-xs text-[#71717A] truncate">{currentUser?.email || "-"}</p>
+                    <p className="text-sm font-semibold text-slate-900 truncate">{currentUser?.name || "User"}</p>
+                    <p className="text-xs text-slate-500 truncate">{currentUser?.email || "-"}</p>
                   </div>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-[#27272A] text-xs">
-                  <div className="flex items-center justify-between text-[#A1A1AA]">
+                <div className="space-y-2 pt-2 border-t border-slate-200 text-xs">
+                  <div className="flex items-center justify-between text-slate-600">
                     <span>Account Role</span>
-                    <span className="font-semibold text-[#F4F4F5]">USER</span>
+                    <span className="font-semibold text-slate-900">USER</span>
                   </div>
-                  <div className="flex items-center justify-between text-[#A1A1AA]">
+                  <div className="flex items-center justify-between text-slate-600">
                     <span>Status</span>
                     {renderStatusBadge(status)}
                   </div>
@@ -599,24 +594,24 @@ export default function Dashboard() {
               </div>
 
               {/* Recent Activity Feed */}
-              <div className="p-5 sm:p-6 rounded-xl bg-[#111113] border border-[#27272A] space-y-4">
+              <div className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-[#F4F4F5]">Recent Activity</h3>
-                  <Activity className="h-4 w-4 text-[#71717A]" />
+                  <h3 className="text-base font-semibold text-slate-900">Recent Activity</h3>
+                  <Activity className="h-4 w-4 text-slate-500" />
                 </div>
 
                 <ul className="space-y-3">
                   {recentActivities.length === 0 && (
-                    <li className="text-xs text-[#71717A] py-2">No recent activity yet.</li>
+                    <li className="text-xs text-slate-500 py-2">No recent activity yet.</li>
                   )}
 
                   {recentActivities.map((item) => (
-                    <li key={item.id} className="p-3 rounded-lg bg-[#18181B] border border-[#27272A]/70 text-xs space-y-1">
+                    <li key={item.id} className="p-3 rounded-lg bg-slate-50 border border-slate-200/70 text-xs space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-[#F4F4F5]">{item.type}</span>
-                        <span className="text-[10px] text-[#71717A]">{formatActivityTimestamp(item.timestamp)}</span>
+                        <span className="font-semibold text-slate-900">{item.type}</span>
+                        <span className="text-[10px] text-slate-500">{formatActivityTimestamp(item.timestamp)}</span>
                       </div>
-                      <p className="text-[#A1A1AA]">{item.description}</p>
+                      <p className="text-slate-600">{item.description}</p>
                     </li>
                   ))}
                 </ul>
@@ -637,8 +632,8 @@ export default function Dashboard() {
               key={toast.id}
               className={`p-3.5 rounded-xl border shadow-xl text-xs font-medium pointer-events-auto flex items-center gap-2.5 ${
                 toast.type === "success"
-                  ? "bg-emerald-950/90 border-emerald-800/60 text-[#22C55E]"
-                  : "bg-rose-950/90 border-rose-800/60 text-[#EF4444]"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  : "bg-rose-50 border-rose-200 text-rose-700"
               }`}
               role="status"
               aria-live="polite"

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import InputOTPForm from "../components/InputOTPForm";
 import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
-import { API_BASE_URL } from "../services/api";
+import { apiUrl } from "../services/api";
 
 const PENDING_SIGNUP_KEY = "pendingSignup";
 
@@ -11,7 +11,6 @@ export default function OtpVerification() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const API_BASE = API_BASE_URL;
 
   const getSignupData = () => {
     if (location.state?.name && location.state?.email && location.state?.password) {
@@ -82,7 +81,7 @@ export default function OtpVerification() {
   };
 
   const handleResend = async () => {
-    const res = await fetch(`${API_BASE}/api/auth/send-otp`, {
+    const res = await fetch(apiUrl("/api/auth/send-otp"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +95,7 @@ export default function OtpVerification() {
   };
 
   const handleVerify = async (otp) => {
-    const res = await fetch(`${API_BASE}/api/auth/verify-otp`, {
+    const res = await fetch(apiUrl("/api/auth/verify-otp"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
